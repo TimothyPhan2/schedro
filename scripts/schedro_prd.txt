@@ -1,0 +1,262 @@
+# Overview
+Schedro is a minimalistic scheduling web application designed for seamless collaboration. It solves the problem of scheduling coordination across teams and individuals by providing an intuitive, shareable calendar system. The platform is ideal for professionals who need to coordinate multiple schedules, such as healthcare providers, educational institutions, and service-based businesses.
+
+# Core Features
+
+## Personal Calendar Management
+- **What it does:** Allows users to create, view, edit, and delete appointments on their personal calendar.
+- **Why it's important:** Serves as the foundation for all scheduling activities and provides users with a centralized view of their commitments.
+- **How it works:** Users can interact with a visual calendar interface to manage appointments with details including title, time, duration, and color coding.
+
+## Shareable Calendar Links
+- **What it does:** Generates unique links that users can share to provide others with access to view or edit their calendar.
+- **Why it's important:** Enables collaboration without requiring recipients to create accounts, lowering the barrier to entry for scheduling.
+- **How it works:** System generates a unique, secure URL that can be shared via email, messaging, or other channels, with configurable permissions.
+
+## Group-Based Scheduling
+- **What it does:** Allows appointments to be associated with specific groups, displaying overlapping events side by side with color differentiation.
+- **Why it's important:** Provides visual clarity when multiple groups schedule during the same time slot, preventing double-booking confusion.
+- **How it works:** When creating an appointment, users can assign it to a group; the calendar view automatically organizes overlapping events to display them adjacently.
+
+## Appointment Creation Interface
+- **What it does:** Provides a modal interface for adding new appointments with necessary details.
+- **Why it's important:** Streamlines the appointment creation process with a consistent, user-friendly experience.
+- **How it works:** When users select a time slot, a modal appears with fields for title, group assignment, color selection, and time details.
+
+# User Experience
+
+## User Personas
+1. **Team Manager:** Needs to coordinate schedules for multiple team members and visualize resource allocation.
+2. **Healthcare Provider:** Requires clear visualization of appointment slots and the ability to share availability with patients.
+3. **Individual User:** Wants a simple way to manage personal schedule and selectively share availability with others.
+
+## Key User Flows
+1. **Calendar Creation and Setup**
+   - User registers/logs in
+   - Creates personal calendar
+   - Configures basic preferences (time zone, display options)
+
+2. **Appointment Management**
+   - User selects a time slot on their calendar
+   - Enters appointment details in the modal
+   - Assigns a group and color (optional)
+   - Saves the appointment
+
+3. **Calendar Sharing**
+   - User generates a shareable link with specified permissions
+   - Shares the link with collaborators
+   - Recipients can view and/or edit based on permissions
+
+4. **Group Calendar Viewing**
+   - User toggles group visibility filters
+   - Views overlapping appointments displayed side by side
+   - Identifies appointments by color and group labels
+
+## UI/UX Considerations
+- Clean, minimalistic interface focusing on calendar visibility
+- Intuitive color coding system for quick visual identification
+- Responsive design that works across desktop and mobile devices
+- Simplified navigation with minimal clicks for common actions
+
+# Technical Architecture
+
+## System Components
+1. **Frontend Application**
+   - Next.js framework for server-side rendering and routing
+   - React components for interactive UI elements
+   - TailwindCSS and Shadcn for styling and UI components
+   - Client-side state management for real-time updates
+
+2. **Backend Services**
+   - Supabase for database, authentication, and real-time capabilities
+   - REST API endpoints for calendar operations
+   - Serverless functions for specialized operations
+
+3. **Authentication System**
+   - User registration and login
+   - Social authentication options
+   - Session management
+
+## Data Models
+
+### Users
+- id (primary key)
+- email
+- password (hashed)
+- name
+- timezone
+- preferences (JSON)
+- created_at
+- updated_at
+
+### Calendars
+- id (primary key)
+- user_id (foreign key)
+- name
+- description
+- default_view (day, week, month)
+- created_at
+- updated_at
+
+### Groups
+- id (primary key)
+- calendar_id (foreign key)
+- name
+- color
+- created_at
+- updated_at
+
+### Events
+- id (primary key)
+- calendar_id (foreign key)
+- group_id (foreign key, nullable)
+- title
+- description (nullable)
+- start_time
+- end_time
+- color
+- is_recurring (boolean)
+- recurrence_rule (nullable, for recurring events)
+- created_at
+- updated_at
+
+### SharedLinks
+- id (primary key)
+- calendar_id (foreign key)
+- token (unique)
+- permissions (view, edit)
+- password (nullable, hashed)
+- expires_at (nullable)
+- created_at
+- updated_at
+
+## APIs and Integrations
+
+### Core API Endpoints
+- `/api/auth/*` - Authentication endpoints
+- `/api/calendars` - Calendar CRUD operations
+- `/api/events` - Event management
+- `/api/groups` - Group management
+- `/api/share` - Sharing functionality
+
+### Potential Future Integrations
+- Google Calendar API
+- Microsoft Outlook API
+- iCalendar format support
+
+## Infrastructure Requirements
+- Supabase project for database and authentication
+- Vercel or similar platform for Next.js hosting
+- Secure environment for API keys and secrets
+
+# Development Roadmap
+
+## Phase 1: MVP
+1. **User Authentication**
+   - Email/password registration and login
+   - Basic user profile
+
+2. **Core Calendar Functionality**
+   - Calendar view component implementation
+   - Basic event CRUD operations
+   - Day, week, and month views
+
+3. **Simple Appointment Creation**
+   - Modal for adding/editing events
+   - Basic event details (title, time, duration)
+   - Color picker
+
+4. **Basic Sharing Mechanism**
+   - Generate view-only shareable links
+   - Access calendar via link without authentication
+
+## Phase 2: Enhanced Features
+1. **Group Functionality**
+   - Create and manage groups
+   - Assign events to groups
+   - Display overlapping events side-by-side
+
+2. **Advanced Sharing Options**
+   - Edit permissions for shared links
+   - Password protection option
+   - Expiry dates for shared links
+
+3. **UI Enhancements**
+   - Improved mobile responsiveness
+   - Drag-and-drop event manipulation
+   - Calendar view customization options
+
+## Phase 3: Advanced Features
+1. **Recurring Events**
+   - Set up recurring event patterns
+   - Manage exceptions to recurring events
+
+2. **Notifications**
+   - Email reminders for events
+   - In-app notifications
+
+3. **Calendar Synchronization**
+   - Import/export with external calendars
+   - Two-way sync with popular calendar services
+
+4. **Analytics Dashboard**
+   - Usage statistics
+   - Scheduling patterns visualization
+
+# Logical Dependency Chain
+
+## Foundation (Must be built first)
+1. User authentication system and profiles
+2. Database schema implementation
+3. Basic calendar component with event rendering
+
+## First Visible Product
+1. Personal calendar with simple event creation
+2. Basic day/week/month views
+3. Simple sharing mechanism (view-only links)
+
+## Feature Building Sequence
+1. Start with single-user calendar functionality
+2. Add shareable link generation
+3. Implement group assignment for events
+4. Develop side-by-side display for overlapping events
+5. Enhance sharing options with permissions
+6. Add additional views and UI refinements
+
+# Risks and Mitigations
+
+## Technical Challenges
+- **Challenge:** Efficient rendering of complex calendar views with overlapping events
+  **Mitigation:** Implement virtualization for large calendars, optimize rendering with useMemo and careful state management
+
+- **Challenge:** Real-time collaborative editing conflicts
+  **Mitigation:** Implement optimistic UI updates with conflict resolution, leverage Supabase real-time capabilities
+
+## MVP Scoping
+- **Challenge:** Feature creep extending development time
+  **Mitigation:** Strictly adhere to MVP definition, defer non-essential features to later phases
+
+- **Challenge:** Balancing simplicity with functionality
+  **Mitigation:** Focus on core user flows first, conduct early usability testing
+
+## Resource Constraints
+- **Challenge:** Limited development resources
+  **Mitigation:** Leverage existing component libraries (Shadcn) and Supabase features to reduce custom code
+
+- **Challenge:** Performance at scale
+  **Mitigation:** Implement pagination and lazy loading for calendar events, optimize database queries
+
+# Appendix
+
+## Technical Specifications
+- **Frontend:** Next.js 15 with App Router
+- **Styling:** TailwindCSS, Shadcn/UI
+- **Backend:** Supabase (PostgreSQL, Authentication, Storage)
+- **State Management:** React Context or Zustand
+- **Calendar Library Options:** react-big-calendar, FullCalendar
+
+## Research Findings
+- Users prefer calendar applications with clean interfaces and minimal learning curve
+- Color coding is essential for quick visual processing of calendar information
+- Sharing functionality is highly valued but often poorly implemented in existing solutions
+- Group scheduling with visual differentiation is an underserved need in the market 
