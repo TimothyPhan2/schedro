@@ -1,0 +1,87 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Shadcn UI Component Usage Guidelines
+
+- **Always Check Existing Components First**
+  - Before installing a new component, check if it already exists in the project
+  - Look in the `components/ui` directory for core Shadcn components
+  - Check for composite components in other directories that might meet your needs
+  - Example: For dropdowns, check if we have `select.tsx`, `combobox.tsx`, or `dropdown-menu.tsx`
+
+- **Follow Shadcn Installation Process for New Components**
+  - Use the CLI command to add official components: `npx shadcn-ui@latest add [component-name]`
+  - This ensures proper dependencies and styling integration
+  - Run from the project root to maintain correct paths
+  ```bash
+  # ✅ DO: Install using the CLI
+  npx shadcn-ui@latest add popover
+
+  # ❌ DON'T: Copy components from other projects or directly from docs
+  ```
+
+- **Component Customization**
+  - Use composition over modification when possible
+  - Extend components with variants or additional props
+  - Keep the core UI components in `components/ui` unchanged
+  - Create composite components in domain-specific folders
+  ```typescript
+  // ✅ DO: Compose components
+  export function CustomSelect({ ...props }) {
+    return (
+      <Select {...props}>
+        <SelectTrigger className="custom-class">
+          <SelectValue />
+        </SelectTrigger>
+        {/* Rest of the component... */}
+      </Select>
+    );
+  }
+  
+  // ❌ DON'T: Modify core components directly
+  ```
+
+- **Styling Best Practices**
+  - Use CSS variables over hard-coded values
+  - Apply Tailwind classes through `className` prop
+  - Use the `cn()` utility for conditional classes
+  - Override styles with the `className` prop rather than CSS overrides
+  ```typescript
+  // ✅ DO: Use className and cn() utility
+  <Button 
+    className={cn(
+      "bg-primary hover:bg-primary/90",
+      isActive && "bg-secondary"
+    )}
+  >
+    Click me
+  </Button>
+  
+  // ❌ DON'T: Use inline styles or !important
+  ```
+
+- **Theme Integration**
+  - Use the CSS variables defined in globals.css
+  - Ensure compatibility with both light and dark modes
+  - Follow our color naming conventions for custom themes
+  - Use semantic names (primary, secondary) over specific colors
+
+- **Component Testing Before Use**
+  - Verify a component works with all our theme settings
+  - Test responsiveness and accessibility
+  - Check for proper keyboard navigation
+  - Ensure screen reader compatibility
+
+- **Component Documentation**
+  - Add comments for non-obvious usage patterns
+  - Include examples for complex compositions
+  - Document any project-specific behavior
+  - Consider updating this rule when adding new patterns
+
+- **Troubleshooting Common Issues**
+  - If styles aren't applying, check the component imports
+  - For positioning issues, verify parent container CSS
+  - For missing functionality, check if additional parts are needed (e.g., PopoverAnchor)
+  - For styling conflicts, check specificity and class order

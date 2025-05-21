@@ -45,71 +45,210 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Timberwolf color scale */
+  --timberwolf: #dad7cd;
+  --timberwolf-100: #312e24;
+  --timberwolf-200: #615b48;
+  --timberwolf-300: #92896c;
+  --timberwolf-400: #b6b09c;
+  --timberwolf-500: #dad7cd;
+  --timberwolf-600: #e2dfd7;
+  --timberwolf-700: #e9e7e1;
+  --timberwolf-800: #f0efeb;
+  --timberwolf-900: #f8f7f5;
+
+  /* Sage color scale */
+  --sage: #a3b18a;
+  --sage-100: #212619;
+  --sage-200: #434c33;
+  --sage-300: #64724c;
+  --sage-400: #859865;
+  --sage-500: #a3b18a;
+  --sage-600: #b6c1a2;
+  --sage-700: #c8d0b9;
+  --sage-800: #dae0d0;
+  --sage-900: #edefe8;
+
+  /* Fern Green color scale */
+  --fern-green: #588157;
+  --fern-green-100: #111911;
+  --fern-green-200: #233323;
+  --fern-green-300: #344c34;
+  --fern-green-400: #466645;
+  --fern-green-500: #588157;
+  --fern-green-600: #739f72;
+  --fern-green-700: #96b795;
+  --fern-green-800: #b9cfb9;
+  --fern-green-900: #dce7dc;
+
+  /* Hunter Green color scale */
+  --hunter-green: #3a5a40;
+  --hunter-green-100: #0c120d;
+  --hunter-green-200: #172419;
+  --hunter-green-300: #233626;
+  --hunter-green-400: #2e4833;
+  --hunter-green-500: #3a5a40;
+  --hunter-green-600: #56865f;
+  --hunter-green-700: #7aaa83;
+  --hunter-green-800: #a7c7ac;
+  --hunter-green-900: #d3e3d6;
+
+  /* Brunswick Green color scale */
+  --brunswick-green: #344e41;
+  --brunswick-green-100: #0a0f0d;
+  --brunswick-green-200: #141f1a;
+  --brunswick-green-300: #1f2e26;
+  --brunswick-green-400: #293d33;
+  --brunswick-green-500: #344e41;
+  --brunswick-green-600: #527a66;
+  --brunswick-green-700: #75a38c;
+  --brunswick-green-800: #a3c2b3;
+  --brunswick-green-900: #d1e0d9;
+
+  /* Map new colors to theme variables */
+  --background: var(--timberwolf-900);
+  --foreground: var(--brunswick-green-500);
+  --card: white;
+  --card-foreground: var(--brunswick-green-400);
+  --popover: white;
+  --popover-foreground: var(--brunswick-green-400);
+  --primary: var(--fern-green-500);
+  --primary-foreground: white;
+  --secondary: var(--sage-500);
+  --secondary-foreground: white;
+  --muted: var(--timberwolf-600);
+  --muted-foreground: var(--brunswick-green-400);
+  --accent: var(--hunter-green-500);
+  --accent-foreground: white;
+  --destructive: #e11d48;
+  --border: var(--sage-400);
+  --input: var(--sage-300);
+  --ring: var(--fern-green-300);
+
+  /* Chart colors */
+  --chart-1: var(--fern-green-500);
+  --chart-2: var(--sage-500);
+  --chart-3: var(--hunter-green-500);
+  --chart-4: var(--brunswick-green-500);
+  --chart-5: var(--timberwolf-400);
+
+  /* Sidebar colors */
+  --sidebar: var(--brunswick-green-300);
+  --sidebar-foreground: white;
+  --sidebar-primary: var(--fern-green-500);
+  --sidebar-primary-foreground: white;
+  --sidebar-accent: var(--timberwolf-600);
+  --sidebar-accent-foreground: var(--hunter-green-400);
+  --sidebar-border: var(--brunswick-green-300);
+  --sidebar-ring: var(--fern-green-600);
+
+  /* Calendar theme variables - Light mode */
+  --calendar-bg: var(--card);
+  --calendar-text: var(--card-foreground);
+  --calendar-border: #e5e7eb;
+  --calendar-border-light: #f3f4f6;
+  --calendar-header-bg: var(--card);
+  --calendar-header-text: var(--card-foreground);
+  --calendar-header-border: #e5e7eb;
+  --calendar-cell-bg: var(--calendar-bg);
+  --calendar-cell-text: var(--calendar-text);
+  --calendar-cell-border: var(--calendar-border-light);
+  --calendar-cell-hover-bg: rgba(243, 244, 246, 0.5);
+  --calendar-today-bg: rgba(88, 129, 87, 0.1); /* fern-green with opacity */
+  --calendar-today-text: var(--fern-green-600);
+  --calendar-selected-bg: rgba(88, 129, 87, 0.2); /* fern-green with opacity */
+  
+  /* Event colors */
+  --calendar-event-bg: var(--primary);
+  --calendar-event-text: var(--primary-foreground);
+  --calendar-event-border: var(--primary);
+  
+  /* Time indicator */
+  --calendar-time-indicator: var(--destructive);
+  --calendar-now-indicator: var(--destructive);
+  
+  /* Agenda view */
+  --calendar-agenda-bg: var(--card);
+  --calendar-agenda-text: var(--card-foreground);
+  --calendar-agenda-border: var(--calendar-border);
+  
+  /* Calendar toolbar */
+  --calendar-toolbar-bg: transparent;
+  --calendar-toolbar-text: var(--card-foreground);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark mode theme using the earth-tone color palette */
+  --background: var(--brunswick-green-100);
+  --foreground: var(--timberwolf-700);
+  --card: var(--brunswick-green-200);
+  --card-foreground: var(--timberwolf-600);
+  --popover: var(--brunswick-green-200);
+  --popover-foreground: var(--timberwolf-600);
+  --primary: var(--fern-green-500);
+  --primary-foreground: white;
+  --secondary: var(--sage-500);
+  --secondary-foreground: white;
+  --muted: var(--brunswick-green-300);
+  --muted-foreground: var(--timberwolf-400);
+  --accent: var(--hunter-green-500);
+  --accent-foreground: white;
+  --destructive: #f43f5e;
+  --border: var(--brunswick-green-400);
+  --input: var(--brunswick-green-300);
+  --ring: var(--fern-green-400);
+
+  /* Chart colors for dark mode */
+  --chart-1: var(--fern-green-600);
+  --chart-2: var(--sage-600);
+  --chart-3: var(--hunter-green-600);
+  --chart-4: var(--brunswick-green-600);
+  --chart-5: var(--timberwolf-400);
+
+  /* Sidebar colors for dark mode */
+  --sidebar: var(--brunswick-green-200);
+  --sidebar-foreground: var(--timberwolf-600);
+  --sidebar-primary: var(--fern-green-500);
+  --sidebar-primary-foreground: white;
+  --sidebar-accent: var(--hunter-green-500);
+  --sidebar-accent-foreground: white;
+  --sidebar-border: var(--brunswick-green-400);
+  --sidebar-ring: var(--fern-green-400);
+  
+  /* Calendar theme variables - Dark mode */
+  --calendar-bg: var(--card);
+  --calendar-text: var(--card-foreground);
+  --calendar-border: var(--brunswick-green-400);
+  --calendar-border-light: var(--brunswick-green-300);
+  --calendar-header-bg: var(--card);
+  --calendar-header-text: var(--card-foreground);
+  --calendar-header-border: var(--brunswick-green-400);
+  --calendar-cell-bg: var(--calendar-bg);
+  --calendar-cell-text: var(--calendar-text);
+  --calendar-cell-border: var(--brunswick-green-300);
+  --calendar-cell-hover-bg: rgba(31, 46, 38, 0.5); /* brunswick-green-300 with opacity */
+  --calendar-today-bg: rgba(88, 129, 87, 0.2); /* fern-green with opacity */
+  --calendar-today-text: var(--fern-green-400);
+  --calendar-selected-bg: rgba(88, 129, 87, 0.3); /* fern-green with opacity */
+  
+  /* Event colors */
+  --calendar-event-bg: var(--primary);
+  --calendar-event-text: var(--primary-foreground);
+  --calendar-event-border: var(--primary);
+  
+  /* Time indicator */
+  --calendar-time-indicator: var(--destructive);
+  --calendar-now-indicator: var(--destructive);
+  
+  /* Agenda view */
+  --calendar-agenda-bg: var(--card);
+  --calendar-agenda-text: var(--card-foreground);
+  --calendar-agenda-border: var(--calendar-border);
+  
+  /* Calendar toolbar */
+  --calendar-toolbar-bg: transparent;
+  --calendar-toolbar-text: var(--card-foreground);
 }
 
 @layer base {
@@ -119,4 +258,487 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Calendar styles */
+/* Calendar base styles */
+.rbc-header {
+  padding: 8px 0;
+  font-weight: 600;
+  color: var(--calendar-header-text);
+  background-color: var(--calendar-header-bg);
+  border-bottom: 1px solid var(--calendar-header-border);
+}
+
+.rbc-time-view {
+  background-color: var(--calendar-bg);
+  color: var(--calendar-text);
+  border: 1px solid var(--calendar-border);
+}
+
+.rbc-time-view .rbc-header {
+  border-bottom: 1px solid var(--calendar-header-border);
+}
+
+.rbc-time-content {
+  border: 1px solid var(--calendar-border);
+  border-top: none;
+}
+
+/* Theme transition helper */
+.theme-update .rbc-event {
+  transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out, border-color 0.1s ease-in-out;
+}
+
+.rbc-event {
+  background-color: var(--calendar-event-bg); 
+  color: var(--calendar-event-text);
+  border-radius: 0.25rem;
+  padding: 2px 5px;
+  font-weight: 500;
+  border: 1px solid var(--calendar-event-border);
+}
+
+.rbc-time-slot {
+  color: var(--calendar-text);
+  opacity: 0.8;
+}
+
+.rbc-time-view .rbc-time-gutter {
+  font-weight: 500;
+  padding-right: 8px;
+  color: var(--calendar-text);
+}
+
+.rbc-current-time-indicator {
+  background-color: var(--calendar-time-indicator);
+  height: 2px;
+}
+
+/* Day/Week/Month view */
+.rbc-month-view {
+  background-color: var(--calendar-bg);
+  color: var(--calendar-text);
+  border: 1px solid var(--calendar-border);
+}
+
+.rbc-day-bg {
+  background-color: var(--calendar-cell-bg);
+}
+
+.rbc-off-range-bg {
+  background-color: var(--calendar-cell-bg);
+  opacity: 0.5;
+}
+
+.rbc-today {
+  background-color: var(--calendar-today-bg) !important;
+}
+
+.rbc-day-bg.rbc-selected-cell {
+  background-color: var(--calendar-selected-bg);
+}
+
+/* Agenda view */
+.rbc-agenda-view {
+  background-color: var(--calendar-agenda-bg);
+  color: var(--calendar-agenda-text);
+  border: 1px solid var(--calendar-agenda-border);
+}
+
+.rbc-agenda-table th {
+  border-bottom: 1px solid var(--calendar-border);
+}
+
+.rbc-agenda-table td {
+  border-bottom: 1px solid var(--calendar-border-light);
+}
+
+/* Calendar toolbar */
+.rbc-toolbar {
+  background-color: var(--calendar-toolbar-bg);
+  color: var(--calendar-toolbar-text);
+}
+
+/* Time indicator styles */
+.rbc-current-time-indicator {
+  background-color: var(--calendar-now-indicator);
+  height: 2px;
+  position: relative;
+}
+
+/* Add a dot to make current time more visible */
+.rbc-current-time-indicator::before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: var(--calendar-now-indicator);
+  border-radius: 50%;
+  top: -3px;
+  left: 0;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 640px) {
+  .calendar-mobile .rbc-time-view {
+    border: none;
+  }
+  
+  .calendar-mobile .rbc-time-header-content .rbc-header {
+    font-size: 0.7rem;
+  }
+  
+  .calendar-mobile .rbc-label {
+    padding: 4px;
+    font-size: 0.7rem;
+  }
+  
+  .calendar-mobile .rbc-time-slot {
+    font-size: 0.7rem;
+  }
+  
+  .calendar-mobile .rbc-time-view .rbc-time-gutter {
+    font-size: 0.7rem;
+  }
+  
+  .calendar-mobile .rbc-event {
+    font-size: 0.7rem;
+  }
+  
+  .calendar-mobile .rbc-time-content > * + * > * {
+    border-left: 1px solid #f3f4f6; /* gray-100 - lighter borders */
+  }
+  
+  .calendar-mobile .rbc-day-slot .rbc-time-slot {
+    border-top: 1px dotted #e5e7eb; /* gray-200 - more subtle lines */
+  }
+  
+  .calendar-mobile .rbc-agenda-view table.rbc-agenda-table {
+    font-size: 0.7rem;
+  }
+  
+  /* Improve touch targets on mobile */
+  .calendar-mobile .rbc-event,
+  .calendar-mobile .rbc-day-slot .rbc-events-container {
+    margin-left: 1px;
+    margin-right: 1px;
+  }
+  
+  /* Make time labels more compact */
+  .calendar-mobile .rbc-time-view .rbc-time-header-gutter,
+  .calendar-mobile .rbc-time-view .rbc-time-gutter {
+    width: 48px !important;
+    min-width: 48px !important;
+  }
+  
+  /* Improve touch targets for all clickable elements */
+  .calendar-mobile .rbc-event, 
+  .calendar-mobile .rbc-show-more,
+  .calendar-mobile .rbc-header,
+  .calendar-mobile .rbc-day-bg,
+  .calendar-mobile .rbc-date-cell {
+    touch-action: manipulation;
+  }
+
+  /* Ensure event text is readable on small screens */
+  .calendar-mobile .rbc-event-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  /* Prevent long titles from breaking layout */
+  .calendar-mobile .rbc-row {
+    overflow: hidden;
+  }
+
+  /* Compact month view for small screens */
+  .calendar-mobile.rbc-month-view .rbc-header {
+    padding: 4px 0;
+    font-size: 0.7rem;
+  }
+  
+  .calendar-mobile.rbc-month-view .rbc-date-cell {
+    padding: 1px;
+    font-size: 0.7rem;
+  }
+  
+  .calendar-mobile.rbc-month-view .rbc-date-cell > a {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  
+  .calendar-mobile.rbc-month-view .rbc-row-content {
+    margin-bottom: 0;
+  }
+  
+  .calendar-mobile.rbc-month-view .rbc-month-row {
+    min-height: 5em;
+  }
+  
+  .calendar-mobile.rbc-month-view .rbc-event {
+    padding: 0 2px;
+    min-height: 16px;
+    font-size: 0.65rem;
+  }
+  
+  .calendar-mobile.rbc-month-view .rbc-show-more {
+    font-size: 0.65rem;
+  }
+
+  /* Compact event styles */
+  .calendar-mobile .rbc-month-view .rbc-event-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0;
+  }
+  
+  /* Ensure today's date stands out */
+  .calendar-mobile .rbc-month-view .rbc-day-bg.rbc-today {
+    background-color: rgba(59, 130, 246, 0.15);
+  }
+  
+  .calendar-mobile .rbc-day-bg.rbc-today .rbc-date-cell > a {
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 50%;
+  }
+  
+  /* Agenda view on mobile */
+  .calendar-mobile .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
+    padding: 4px;
+    font-size: 0.7rem;
+  }
+  
+  .calendar-mobile .rbc-agenda-view table.rbc-agenda-table .rbc-agenda-time-cell {
+    padding-right: 4px;
+    width: 80px;
+  }
+  
+  .calendar-mobile .rbc-agenda-view table.rbc-agenda-table .rbc-agenda-date-cell,
+  .calendar-mobile .rbc-agenda-view table.rbc-agenda-table .rbc-agenda-event-cell {
+    padding-left: 4px;
+  }
+}
+
+/* Tablet-specific styles */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .calendar-tablet .rbc-time-view {
+    border: 1px solid #e5e7eb;
+  }
+  
+  .calendar-tablet .rbc-time-header-content .rbc-header {
+    font-size: 0.8rem;
+    padding: 6px 2px;
+  }
+  
+  .calendar-tablet .rbc-label {
+    padding: 4px;
+    font-size: 0.8rem;
+  }
+  
+  .calendar-tablet .rbc-time-slot {
+    font-size: 0.8rem;
+  }
+  
+  .calendar-tablet .rbc-time-view .rbc-time-gutter {
+    font-size: 0.8rem;
+    width: 60px !important;
+    min-width: 60px !important;
+  }
+  
+  .calendar-tablet .rbc-event {
+    font-size: 0.8rem;
+    padding: 2px 4px;
+    border-radius: 3px;
+  }
+  
+  /* Balanced borders for tablet */
+  .calendar-tablet .rbc-time-content > * + * > * {
+    border-left: 1px solid #e5e7eb;
+  }
+  
+  .calendar-tablet .rbc-agenda-view table.rbc-agenda-table {
+    font-size: 0.8rem;
+  }
+
+  /* Improved readability for events */
+  .calendar-tablet .rbc-event-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Better touch targets while maintaining density */
+  .calendar-tablet .rbc-event, 
+  .calendar-tablet .rbc-show-more {
+    margin: 1px 2px;
+    min-height: 20px;
+  }
+
+  /* Optimized month view for tablets */
+  .calendar-tablet.rbc-month-view .rbc-month-row {
+    min-height: 6em;
+  }
+  
+  .calendar-tablet.rbc-month-view .rbc-event {
+    min-height: 18px;
+    font-size: 0.75rem;
+  }
+  
+  .calendar-tablet .rbc-month-view .rbc-event-content {
+    padding: 1px 2px;
+  }
+  
+  /* Ensure today's date stands out */
+  .calendar-tablet .rbc-month-view .rbc-day-bg.rbc-today {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+  
+  .calendar-tablet .rbc-today .rbc-date-cell > a {
+    color: #3b82f6;
+    font-weight: bold;
+  }
+}
+
+/* Desktop fine-tuning */
+.calendar-desktop .rbc-event {
+  font-size: 0.8rem;
+}
+
+.calendar-desktop .rbc-time-slot,
+.calendar-desktop .rbc-time-view .rbc-time-gutter {
+  font-size: 0.8rem;
+}
+
+.calendar-desktop .rbc-time-view {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+}
+
+.calendar-desktop .rbc-event {
+  padding: 2px 5px;
+  margin: 1px 2px;
+  min-height: 24px;
+}
+
+/* Common responsive improvements regardless of device size */
+/* Ensure events remain visible at all sizes */
+.rbc-event {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ensure selected dates have better visibility */
+.rbc-day-bg.rbc-selected-cell {
+  background-color: rgba(59, 130, 246, 0.1); /* light blue background */
+}
+
+/* Enhance current time indicator */
+.rbc-current-time-indicator {
+  height: 2px;
+  background-color: #ef4444; /* red-500 */
+  position: relative;
+}
+
+/* Add a dot to make current time more visible */
+.rbc-current-time-indicator::before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  top: -3px;
+  left: 0;
+}
+
+/* Improve overall month view appearance */
+.rbc-month-view .rbc-header {
+  padding: 8px 0;
+}
+
+.rbc-month-view .rbc-date-cell {
+  padding-right: 5px;
+  text-align: center;
+}
+
+.rbc-row-content {
+  margin-bottom: 2px;
+}
+
+.rbc-month-view .rbc-event {
+  padding: 1px 3px;
+}
+
+/* Ensure month view and agenda view display correctly */
+.calendar-container {
+  width: 100%;
+  position: relative;
+}
+
+.rbc-calendar {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.rbc-calendar .rbc-toolbar {
+  flex: 0 0 auto;
+}
+
+/* Give month view proper height */
+.rbc-month-view {
+  flex: 1;
+  min-height: 500px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.rbc-month-view .rbc-month-header {
+  flex: 0 0 auto;
+}
+
+.rbc-month-view .rbc-month-row {
+  flex: 1 1 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.rbc-month-view .rbc-date-cell {
+  padding: 4px;
+  text-align: right;
+}
+
+/* Agenda view display */
+.rbc-agenda-view {
+  flex: 1;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rbc-agenda-view .rbc-agenda-table-header {
+  font-weight: bold;
+}
+
+.rbc-agenda-view .rbc-agenda-content {
+  flex: 1;
+  overflow: auto;
+}
+
+.rbc-agenda-view table.rbc-agenda-table {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;
 }
