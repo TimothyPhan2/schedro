@@ -62,11 +62,6 @@ export default function RegisterPage() {
               We've sent a confirmation link to {email}. Please check your inbox and confirm your email address.
             </CardDescription>
           </CardHeader>
-          <CardFooter>
-            <Button onClick={() => router.push('/login')} className="w-full">
-              Return to login
-            </Button>
-          </CardFooter>
         </Card>
       </div>
     );

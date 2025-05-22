@@ -40,7 +40,6 @@ export type Database = {
       }
       calendars: {
         Row: {
-          color: string | null;
           created_at: string | null;
           default_view: string;
           description: string | null;
@@ -51,7 +50,6 @@ export type Database = {
           user_id: string;
         };
         Insert: {
-          color?: string | null;
           created_at?: string | null;
           default_view?: string;
           description?: string | null;
@@ -62,7 +60,6 @@ export type Database = {
           user_id: string;
         };
         Update: {
-          color?: string | null;
           created_at?: string | null;
           default_view?: string;
           description?: string | null;

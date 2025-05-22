@@ -1,36 +1,25 @@
-'use client';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 
-import { useAuth } from '@/lib/auth/auth-context';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-
-export default function ProtectedLayout({
+export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
+ // Check for the authenticated user on the server side
+ const { user } = await getAuthenticatedUser();
 
-  useEffect(() => {
-    // If auth has been checked and user is not logged in, redirect to login
-    if (!isLoading && !user) {
-      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
-    }
-  }, [user, isLoading, router, pathname]);
+ // If no user is found, redirect to the login page on the server
+ // The middleware would have already handled the initial redirect for unauthenticated access,
+ // but this provides an additional layer of protection within the layout itself.
+ if (!user) {
+   // Note: Server-side redirect doesn't typically need the 'redirect' query param
+   // unless your login page explicitly expects it for server-side redirects.
+   // For now, a simple redirect to /login is standard.
+   redirect('/login'); 
+ }
 
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse text-center">
-          <p className="text-lg font-medium">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+ // If user is authenticated, render children
+ return <>{children}</>;
 
-  // If user is authenticated, render children
-  return user ? <>{children}</> : null;
 } 
