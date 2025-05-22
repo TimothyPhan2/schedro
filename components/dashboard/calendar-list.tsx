@@ -48,7 +48,7 @@ export function CalendarList({ calendars, onDelete }: CalendarListProps) {
           </CardContent>
           
           <CardFooter className="flex justify-between pt-2">
-            <Link href={`/calendar/${calendar.id}`} passHref>
+            <Link href={`/calendar/${calendar.id}`} passHref prefetch={true}>
               <Button variant="outline" size="sm" className="flex items-center gap-1">
                 <EyeIcon className="h-3 w-3" />
                 View

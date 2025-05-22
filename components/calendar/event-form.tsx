@@ -40,6 +40,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
+import { EventTemplateButton } from "@/components/calendar/event-template-button";
 
 // Define the form schema
 const formSchema = z.object({
@@ -104,6 +105,33 @@ export function EventForm({
     { name: "Teal", value: "#14b8a6" },
     { name: "Orange", value: "#f97316" },
   ];
+  
+  // Event templates for quick creation
+  const eventTemplates = [
+    { name: "Meeting", color: "#3b82f6", duration: 30 },
+    { name: "Focus Time", color: "#10b981", duration: 60 },
+    { name: "Break", color: "#f59e0b", duration: 15 },
+  ];
+  
+  // Apply template function for quick event creation
+  const applyTemplate = (template: { name: string; color: string; duration: number }) => {
+    form.setValue("title", template.name);
+    form.setValue("color", template.color);
+    
+    // Set duration based on template
+    if (template.duration) {
+      const startTime = form.getValues("startTime");
+      const startDate = form.getValues("startDate");
+      
+      if (startTime && startDate) {
+        const startDateTime = new Date(`${startDate}T${startTime}:00`);
+        const newEndDateTime = new Date(startDateTime.getTime() + template.duration * 60000);
+        
+        form.setValue("endDate", format(newEndDateTime, "yyyy-MM-dd"));
+        form.setValue("endTime", format(newEndDateTime, "HH:mm"));
+      }
+    }
+  };
 
   // Set default values for the form
   const defaultValues = {
@@ -232,6 +260,22 @@ export function EventForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {(!initialData || !initialData.id) && (
+          <div className="mb-6">
+            <div className="mb-2">
+              <h3 className="text-sm font-medium text-muted-foreground">Quick Templates</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {eventTemplates.map((template) => (
+                <EventTemplateButton
+                  key={template.name}
+                  template={template}
+                  onClick={() => applyTemplate(template)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
         <FormField
           control={form.control}
           name="title"

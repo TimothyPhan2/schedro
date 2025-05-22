@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getUserCalendars } from '@/lib/calendars';
 import { addDays } from 'date-fns';
 import { getUserEvents } from '../events';
+
 interface DashboardData {
   metrics: {
     totalCalendars: number;
@@ -91,20 +92,25 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
 }
 
 export async function getCalendarData(userId: string, calendarId: string) {
-    try {
-        const [calendar, events] = await Promise.all([
-            getCalendarById(userId, calendarId),
-            getUserEvents(userId, { calendarId })
-        ])
-        return {
-            calendar,
-            events
-        }
-    } catch (error) {
-        console.error('Error fetching calendar data:', error);
-        return {
-            calendar: null,
-            events: []
-        }
-    }
+  try {
+      // Use Promise.all for parallel execution (already good)
+      const [calendar, events] = await Promise.all([
+          getCalendarById(userId, calendarId),
+          getUserEvents(userId, { calendarId })
+      ])
+      
+      // Validate calendar ownership/access
+      if (!calendar) {
+          throw new Error('Calendar not found or access denied');
+      }
+      
+      return {
+          calendar,
+          events: events || []
+      }
+  } catch (error) {
+      console.error('Error fetching calendar data:', error);
+      // Re-throw the error so it can be caught by error boundary
+      throw new Error(error instanceof Error ? error.message : 'Failed to load calendar data');
+  }
 }
