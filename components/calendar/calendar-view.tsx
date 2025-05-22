@@ -20,6 +20,8 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from 'next-themes';
 import { CalendarThemeConfig } from './calendar-theme-config';
 import { useCalendarTheme } from '@/hooks/use-calendar-theme';
+import { useEvent } from '@/hooks/use-event';
+import { EventModal } from './event-modal';
 
 import {
   ChevronLeftIcon,
@@ -38,6 +40,8 @@ interface CalendarViewProps {
   onSelectSlot?: (slotInfo: { start: Date; end: Date; slots: Date[] | string[]; action: 'select' | 'click' | 'doubleClick' }) => void;
   showThemeControls?: boolean;
   defaultColorScheme?: string;
+  calendarId?: string;
+  onEventChange?: () => void;
 }
 
 const allViews: View[] = [Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA];
@@ -242,6 +246,8 @@ export function CalendarView({
   onSelectEvent,
   onSelectSlot,
   showThemeControls = true,
+  calendarId,
+  onEventChange,
 }: CalendarViewProps) {
   const isMobile = useMediaQuery("(max-width: 640px)");
   const isTablet = useMediaQuery("(min-width: 641px) and (max-width: 1024px)");
@@ -263,6 +269,18 @@ export function CalendarView({
   
   const [view, setView] = useState<View>(getResponsiveDefaultView());
   const [height, setHeight] = useState<number>(600);
+
+  // Use the event hook for modal management
+  const {
+    isModalOpen,
+    selectedEvent,
+    defaultDate,
+    defaultCalendarId,
+    createEvent,
+    editEvent,
+    closeModal,
+    deleteEvent
+  } = useEvent();
   
   // Update view when screen size changes
   useEffect(() => {
@@ -282,7 +300,16 @@ export function CalendarView({
   
   // Localize events to the specified timezone
   const localizedEvents = useMemo(() => {
-    return events.map(event => ({
+    // First, ensure all events have proper Date objects
+    const processedEvents = events.map(event => ({
+      ...event,
+      // Ensure these are proper Date objects
+      start: event.start instanceof Date ? event.start : new Date(event.start),
+      end: event.end instanceof Date ? event.end : new Date(event.end)
+    }));
+    
+    // Then apply timezone conversion
+    return processedEvents.map(event => ({
       ...event,
       start: toTimeZone(event.start, timeZone),
       end: toTimeZone(event.end, timeZone),
@@ -326,16 +353,62 @@ export function CalendarView({
     setCurrentDate(newDate);
   };
   
-  // Handle slot selection
+  // Handle slot selection - open event creation modal
   const handleSelectSlot = (slotInfo: { start: Date; end: Date; slots: Date[] | string[]; action: 'select' | 'click' | 'doubleClick' }) => {
+    // Convert from local timezone before passing to handler
+    const convertedStart = fromTimeZone(slotInfo.start, timeZone);
+    const convertedEnd = fromTimeZone(slotInfo.end, timeZone);
+    
+    // Debug the calendar ID and selected time
+    console.log("Calendar ID in handleSelectSlot:", calendarId);
+    console.log("Selected slot start:", convertedStart);
+    console.log("Selected slot end:", convertedEnd);
+    
+    // Open the event creation modal with the selected date and time
+    createEvent(convertedStart, calendarId);
+    
+    // Also call the original onSelectSlot if provided
     if (onSelectSlot) {
-      // Convert back from local timezone before passing to handler
       const convertedSlotInfo = {
         ...slotInfo,
-        start: fromTimeZone(slotInfo.start, timeZone),
-        end: fromTimeZone(slotInfo.end, timeZone),
+        start: convertedStart,
+        end: convertedEnd,
       };
       onSelectSlot(convertedSlotInfo);
+    }
+  };
+  
+  // Handle event selection - open event editing modal
+  const handleSelectEvent = (event: AppEvent) => {
+    // Format the event data for the modal
+    const formattedEvent = {
+      id: String(event.id),
+      title: event.title,
+      description: event.description || '',
+      start_time: fromTimeZone(event.start, timeZone).toISOString(),
+      end_time: fromTimeZone(event.end, timeZone).toISOString(),
+      location: event.location || '',
+      all_day: event.allDay || false,
+      calendar_id: calendarId || '',
+      color: event.color,
+    };
+    
+    // Open the event editing modal
+    editEvent(formattedEvent);
+    
+    // Also call the original onSelectEvent if provided
+    if (onSelectEvent) {
+      onSelectEvent(event);
+    }
+  };
+  
+  // Handle modal close and refresh events if needed
+  const handleModalClose = () => {
+    closeModal();
+    
+    // Refresh events if an onEventChange callback is provided
+    if (onEventChange) {
+      onEventChange();
     }
   };
   
@@ -401,33 +474,46 @@ export function CalendarView({
         )}
       </div>
       
-      <Calendar
-        className={getViewClass()}
-        date={currentDate}
-        events={localizedEvents}
-        localizer={localizer}
-        defaultView={getResponsiveDefaultView()}
-        views={allViews}
-        step={getStepSize()}
-        timeslots={getTimeslots()}
-        selectable
-        popup={isMobile ? true : false}
-        length={isMobile ? 50 : 30}
-        view={view}
-        onView={setView}
-        onNavigate={handleNavigate}
-        onSelectEvent={onSelectEvent}
-        onSelectSlot={handleSelectSlot}
-        components={components}
-        longPressThreshold={isMobile ? 250 : 500}
-        formats={{
-          timeGutterFormat: isMobile
-            ? (date: Date, culture?: string) => date.toLocaleTimeString(culture, { hour: 'numeric' })
-            : (date: Date, culture?: string) => date.toLocaleTimeString(culture, { hour: 'numeric', minute: '2-digit' }),
-        }}
-        drilldownView={isMobile ? null : Views.DAY}
-        style={{ height }}
+      <div className={`${getViewClass()} mb-6`}>
+        <Calendar
+          events={localizedEvents}
+          localizer={localizer}
+          startAccessor="start"
+          endAccessor="end"
+          titleAccessor="title"
+          step={getStepSize()}
+          timeslots={getTimeslots()}
+          defaultView={view}
+          view={view}
+          views={allViews}
+          onView={setView}
+          date={currentDate}
+          onNavigate={handleNavigate}
+          onSelectEvent={handleSelectEvent}
+          onSelectSlot={handleSelectSlot}
+          selectable
+          scrollToTime={new Date(new Date().setHours(6))}
+          components={components}
+          style={{ height }}
+        />
+      </div>
+      
+      {/* Event Modal */}
+      <EventModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        selectedEvent={selectedEvent}
+        defaultDate={defaultDate}
+        defaultCalendarId={defaultCalendarId || calendarId}
+        onDelete={deleteEvent}
       />
+      
+      {/* Debug info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="hidden">
+          Debug: CalendarID = {calendarId || 'undefined'}
+        </div>
+      )}
     </div>
   );
 } 

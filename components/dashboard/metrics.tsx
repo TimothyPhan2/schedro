@@ -16,6 +16,18 @@ export function DashboardMetrics({
   upcomingEvents,
   lastWeekChange = 0
 }: MetricsProps) {
+  let calendarChangeMessage;
+
+  if (totalCalendars === 0) {
+    calendarChangeMessage = "Create your first calendar";
+  } else if (lastWeekChange > 0) {
+    calendarChangeMessage = `+${lastWeekChange} from last week`;
+  } else if (lastWeekChange < 0) {
+    calendarChangeMessage = `${lastWeekChange} from last week`;
+  } else {
+    calendarChangeMessage = "±0 from last week";
+  }
+
   return (
     <div className="grid gap-4 md:grid-cols-3">
       {/* Total Calendars */}
@@ -27,13 +39,7 @@ export function DashboardMetrics({
         <CardContent>
           <div className="text-2xl font-bold">{totalCalendars}</div>
           <p className="text-xs text-muted-foreground">
-            {totalCalendars === 0 
-              ? "Create your first calendar" 
-              : lastWeekChange > 0 
-                ? `+${lastWeekChange} from last week` 
-                : lastWeekChange < 0 
-                  ? `${lastWeekChange} from last week` 
-                  : "±0 from last week"}
+            {calendarChangeMessage}
           </p>
         </CardContent>
       </Card>

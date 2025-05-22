@@ -4,7 +4,7 @@ import { Database } from '../database.types';
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies()
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -35,8 +35,8 @@ export async function getAuthenticatedUser() {
   
     if (error || !user) {
       console.error('Error getting authenticated user:', error);
-      return { user: null };
+      return { user: null, supabase };
     }
   
-    return { user };
+    return { user, supabase };
 } 

@@ -3,13 +3,21 @@ import { AppEvent } from '@/lib/types/event';
 
 // Convert database event to AppEvent format
 export function formatEvent(dbEvent: any): AppEvent {
+  // Ensure we're creating proper Date objects that can be serialized
+  const startDate = new Date(dbEvent.start_time);
+  const endDate = new Date(dbEvent.end_time);
+  
+  // Convert to ISO strings for safer serialization
+  const start = startDate;
+  const end = endDate;
+  
   return {
     id: dbEvent.id,
     title: dbEvent.title,
-    start: new Date(dbEvent.start_time),
-    end: new Date(dbEvent.end_time),
+    start,
+    end,
     allDay: dbEvent.all_day || false,
-    color: dbEvent.color,
+    color: dbEvent.color || undefined,
     location: dbEvent.location,
     description: dbEvent.description,
   };
@@ -98,7 +106,8 @@ export async function getEventById(eventId: string) {
 }
 
 // Create a new event
-export async function createEvent(userId: string, calendarId: string, eventData: Partial<AppEvent>) {
+export async function createEvent(userId: string, calendarId: string, eventData: any) {
+  console.log("createEvent called with:", { userId, calendarId, eventData });
   const supabase = await createServerSupabaseClient();
   
   // Verify the user owns this calendar
@@ -110,15 +119,29 @@ export async function createEvent(userId: string, calendarId: string, eventData:
     .single();
     
   if (calendarError || !calendar) {
+    console.error("Calendar verification error:", calendarError);
     throw new Error('Calendar not found or access denied');
   }
   
+  // Extract known fields for AppEvent but don't assume all fields are present
+  const appEventFields = {
+    title: eventData.title || "Untitled Event",
+    start: eventData.start || new Date(eventData.start_time),
+    end: eventData.end || new Date(eventData.end_time),
+    allDay: eventData.all_day || eventData.allDay || false,
+    location: eventData.location,
+    description: eventData.description,
+    color: eventData.color,
+  };
+  
   // Format the event data for the database
   const dbEventData = {
-    ...formatEventForDb(eventData as AppEvent),
+    ...formatEventForDb(appEventFields as AppEvent),
     calendar_id: calendarId,
     created_by: userId
   };
+  
+  console.log("Inserting event with data:", dbEventData);
   
   // Create the event
   const { data: event, error } = await supabase

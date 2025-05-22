@@ -1,6 +1,5 @@
 'use client';
 
-import { use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { CalendarView } from '@/components/calendar/calendar-view';
@@ -65,6 +64,10 @@ export default function CalendarClient({
     }
   };
 
+  // Debug information to help with hydration errors
+  console.log("Calendar ID in client:", calendarId);
+  console.log("Calendar data keys:", Object.keys(calendarData));
+
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-6">
@@ -116,6 +119,7 @@ export default function CalendarClient({
                     onSelectEvent={handleSelectEvent}
                     onSelectSlot={handleSelectSlot}
                     defaultView={getValidView(calendar.default_view)}
+                    calendarId={calendarId}
                 />
             </CardContent>
         </Card>

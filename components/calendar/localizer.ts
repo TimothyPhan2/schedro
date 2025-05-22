@@ -22,7 +22,9 @@ export const toTimeZone = (date: Date, timeZone = defaultTimeZone) => {
 
 // Convert a date from a specific timezone to UTC
 export const fromTimeZone = (date: Date, timeZone = defaultTimeZone) => {
-  return new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
+  // We need to preserve the exact date and time that was selected in the calendar
+  // without any timezone adjustments
+  return new Date(date);
 };
 
 export const getDefaultTimeZone = () => defaultTimeZone;

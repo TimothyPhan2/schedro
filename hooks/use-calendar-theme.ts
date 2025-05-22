@@ -83,6 +83,11 @@ export function useCalendarTheme(initialTheme: EventColorScheme = 'default') {
   
   // Function to get inline style for specific event with optional override
   const getEventStyle = (overrideColor?: string) => {
+    // Handle "default" value the same as undefined
+    if (overrideColor === "default") {
+      overrideColor = undefined;
+    }
+    
     if (overrideColor) {
       // If override color is provided, use it with appropriate contrast
       const textColor = getContrastColor(overrideColor);

@@ -68,14 +68,23 @@ export async function POST(request: Request) {
   try {
     const eventData = await request.json();
     
-    if (!eventData.calendarId) {
+    // Handle both calendarId (API) and calendar_id (DB) field names for flexibility
+    const calendarId = eventData.calendarId || eventData.calendar_id;
+    
+    if (!calendarId) {
       return NextResponse.json(
         { error: 'Calendar ID is required' },
         { status: 400 }
       );
     }
     
-    const event = await createEvent(user.id, eventData.calendarId, eventData);
+    console.log("Creating event with data:", {
+      ...eventData,
+      calendarId,
+    });
+    
+    // Explicitly pass the calendar ID field in the format expected by the createEvent function
+    const event = await createEvent(user.id, calendarId, eventData);
     return NextResponse.json(event);
   } catch (error) {
     console.error('Error creating event:', error);
