@@ -1,5 +1,6 @@
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { ProtectedNav } from '@/components/navigation/protected-nav';
 
 export default async function ProtectedLayout({
   children,
@@ -19,7 +20,13 @@ export default async function ProtectedLayout({
    redirect('/login'); 
  }
 
- // If user is authenticated, render children
- return <>{children}</>;
-
+ // If user is authenticated, render children with navigation
+ return (
+   <div className="min-h-screen bg-background">
+     <ProtectedNav />
+     <main className="flex-1">
+       {children}
+     </main>
+   </div>
+ );
 } 

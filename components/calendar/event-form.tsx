@@ -529,31 +529,40 @@ export function EventForm({
           />
         )}
 
-        <div className="flex justify-between pt-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-3 pt-4 border-t">
           {initialData?.id && onDelete ? (
             <Button 
               type="button" 
               variant="destructive" 
               onClick={() => setShowDeleteDialog(true)}
               disabled={isSubmitting || isDeleting}
+              size="sm"
+              className="w-full sm:w-auto"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </Button>
           ) : (
-            <div>{/* Empty div to maintain flex spacing */}</div>
+            <div className="hidden sm:block">{/* Empty div to maintain flex spacing on desktop */}</div>
           )}
           
-          <div className="flex space-x-2">
+          <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting || isDeleting}
+              size="sm"
+              className="w-full sm:w-auto order-2 sm:order-1"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || isDeleting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || isDeleting}
+              size="sm"
+              className="w-full sm:w-auto order-1 sm:order-2"
+            >
               {isSubmitting
                 ? "Saving..."
                 : initialData?.id

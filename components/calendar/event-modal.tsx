@@ -137,29 +137,29 @@ export function EventModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="w-[95vw] max-w-[500px] max-h-[90vh] sm:max-h-[85vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-lg sm:text-xl">
             {selectedEvent ? "Edit Event" : "Create Event"}
           </DialogTitle>
           {error && (
-            <DialogDescription className="text-destructive pt-2">
+            <DialogDescription className="text-destructive text-sm pt-1">
               {error}
             </DialogDescription>
           )}
         </DialogHeader>
 
         {isLoading && (
-          <div className="flex justify-center items-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2">Loading calendars...</span>
+          <div className="flex justify-center items-center py-8 sm:py-12">
+            <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-primary" />
+            <span className="ml-2 text-sm sm:text-base">Loading calendars...</span>
           </div>
         )}
 
         {!isLoading && error && calendars.length === 0 && (
-          <div className="py-6 text-center space-y-4">
-            <p>Please create a calendar before adding events.</p>
-            <Button asChild>
+          <div className="py-6 sm:py-8 text-center space-y-4">
+            <p className="text-sm sm:text-base px-2">Please create a calendar before adding events.</p>
+            <Button asChild size="sm" className="w-full sm:w-auto">
               <Link href="/dashboard">
                 <CalendarPlus className="mr-2 h-4 w-4" />
                 Create Calendar
@@ -169,13 +169,15 @@ export function EventModal({
         )}
         
         {!isLoading && !error && calendars.length > 0 && (
-          <EventForm
-            initialData={getInitialData()}
-            calendars={calendars}
-            groups={groups}
-            onClose={onClose}
-            onDelete={onDelete}
-          />
+          <div className="space-y-4">
+            <EventForm
+              initialData={getInitialData()}
+              calendars={calendars}
+              groups={groups}
+              onClose={onClose}
+              onDelete={onDelete}
+            />
+          </div>
         )}
       </DialogContent>
     </Dialog>
