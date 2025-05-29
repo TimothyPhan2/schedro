@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/server';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getUserCalendars, createCalendar } from '@/lib/calendars';
+import { validateRequestBody } from '@/lib/validation/api-helpers';
+import { createCalendarSchema } from '@/lib/validation/schemas';
 
 // GET /api/calendars - Fetch all calendars for the authenticated user
 export async function GET(request: Request) {
@@ -31,24 +33,20 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
+
+  // Validate request body with Zod schema
+  const bodyValidation = await validateRequestBody(request, createCalendarSchema);
+  if (!bodyValidation.success) {
+    return bodyValidation.response;
+  }
+
+  const calendarData = bodyValidation.data;
+
   try {
-    const calendarData = await request.json();
-    
-    if (!calendarData.name) {
-      return NextResponse.json(
-        { error: 'Calendar name is required' },
-        { status: 400 }
-      );
-    }
-    
     const calendar = await createCalendar(user.id, {
-      name: calendarData.name,
-      description: calendarData.description,
-      default_view: calendarData.default_view || 'week',
-      is_primary: calendarData.is_primary
+      ...calendarData,
+      description: calendarData.description || undefined
     });
-    
     return NextResponse.json(calendar, { status: 201 });
   } catch (error) {
     console.error('Error creating calendar:', error);

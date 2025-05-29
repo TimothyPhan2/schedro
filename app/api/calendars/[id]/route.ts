@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/server';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getCalendarById, updateCalendar, deleteCalendar } from '@/lib/calendars';
+import { validateRequestBody } from '@/lib/validation/api-helpers';
+import { updateCalendarSchema, idParamsSchema } from '@/lib/validation/schemas';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Get authenticated user securely
   const { user } = await getAuthenticatedUser();
@@ -13,7 +15,17 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
-  const { id } = params;
+  const { id } = await params;
+  
+  // Validate path parameters
+  try {
+    idParamsSchema.parse({ id });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Invalid calendar ID format' },
+      { status: 400 }
+    );
+  }
   
   try {
     const calendar = await getCalendarById(user.id, id);
@@ -29,7 +41,7 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Get authenticated user securely
   const { user } = await getAuthenticatedUser();
@@ -38,11 +50,31 @@ export async function PATCH(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
-  const { id } = params;
+  const { id } = await params;
   
+  // Validate path parameters
   try {
-    const updateData = await request.json();
-    const updatedCalendar = await updateCalendar(user.id, id, updateData);
+    idParamsSchema.parse({ id });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Invalid calendar ID format' },
+      { status: 400 }
+    );
+  }
+
+  // Validate request body with Zod schema
+  const bodyValidation = await validateRequestBody(request, updateCalendarSchema);
+  if (!bodyValidation.success) {
+    return bodyValidation.response;
+  }
+
+  const updateData = bodyValidation.data;
+
+  try {
+    const updatedCalendar = await updateCalendar(user.id, id, {
+      ...updateData,
+      description: updateData.description || undefined
+    });
     return NextResponse.json(updatedCalendar);
   } catch (error) {
     console.error('Error updating calendar:', error);
@@ -55,7 +87,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Get authenticated user securely
   const { user } = await getAuthenticatedUser();
@@ -64,7 +96,17 @@ export async function DELETE(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
-  const { id } = params;
+  const { id } = await params;
+  
+  // Validate path parameters
+  try {
+    idParamsSchema.parse({ id });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Invalid calendar ID format' },
+      { status: 400 }
+    );
+  }
   
   try {
     await deleteCalendar(user.id, id);

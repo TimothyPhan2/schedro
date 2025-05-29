@@ -1,25 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { validateRequestBody } from '@/lib/validation/api-helpers';
+import { updateEventSchema, idParamsSchema } from '@/lib/validation/schemas';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createServerSupabaseClient();
     // Get authenticated user securely
-  const { user } = await getAuthenticatedUser();
-  
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+    const { user } = await getAuthenticatedUser();
     
-    const id = params.id;
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
-    if (!id) {
+    const { id } = await params;
+    
+    // Validate path parameters
+    try {
+      idParamsSchema.parse({ id });
+    } catch (error) {
       return NextResponse.json(
-        { error: 'Event ID is required' },
+        { error: 'Invalid event ID format' },
         { status: 400 }
       );
     }
@@ -34,8 +39,7 @@ export async function GET(
       .eq('id', id)
       .single();
       
-    if (error) {
-      console.error('Error fetching event:', error);
+    if (error || !event) {
       return NextResponse.json(
         { error: 'Event not found' },
         { status: 404 }
@@ -63,7 +67,7 @@ export async function GET(
 // PUT /api/events/[id] - Update an existing event
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get authenticated user securely
@@ -73,16 +77,25 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const id = params.id;
+    const { id } = await params;
     
-    if (!id) {
+    // Validate path parameters
+    try {
+      idParamsSchema.parse({ id });
+    } catch (error) {
       return NextResponse.json(
-        { error: 'Event ID is required' },
+        { error: 'Invalid event ID format' },
         { status: 400 }
       );
     }
     
-    const updateData = await request.json();
+    // Validate request body with Zod schema
+    const bodyValidation = await validateRequestBody(request, updateEventSchema);
+    if (!bodyValidation.success) {
+      return bodyValidation.response;
+    }
+    
+    const updateData = bodyValidation.data;
     
     // First, get the event to verify ownership
     const { data: existingEvent, error: fetchError } = await supabase
@@ -106,24 +119,13 @@ export async function PUT(
       );
     }
     
-    // Format the data for updating
-    const eventData = {
-      title: updateData.title,
-      description: updateData.description || null,
-      start_time: updateData.start_time,
-      end_time: updateData.end_time,
-      location: updateData.location || null,
-      all_day: updateData.all_day || false,
-      calendar_id: updateData.calendar_id,
-      group_id: updateData.group_id || null,
-      color: updateData.color || null,
-      updated_at: new Date().toISOString()
-    };
-    
-    // Update the event
+    // Update the event with validated data
     const { data: updatedEvent, error } = await supabase
       .from('events')
-      .update(eventData)
+      .update({
+        ...updateData,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', id)
       .select()
       .single();
@@ -150,7 +152,7 @@ export async function PUT(
 // DELETE /api/events/[id] - Delete an event
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get authenticated user securely
@@ -160,11 +162,14 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const id = params.id;
+    const { id } = await params;
     
-    if (!id) {
+    // Validate path parameters
+    try {
+      idParamsSchema.parse({ id });
+    } catch (error) {
       return NextResponse.json(
-        { error: 'Event ID is required' },
+        { error: 'Invalid event ID format' },
         { status: 400 }
       );
     }

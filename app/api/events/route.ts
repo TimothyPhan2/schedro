@@ -3,6 +3,8 @@ import { createServerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase
 import { revalidatePath } from 'next/cache';
 import { getUserEvents, createEvent } from '@/lib/events';
 import { getCalendarById } from '@/lib/calendars';
+import { validateRequestBody, validateQueryParams } from '@/lib/validation/api-helpers';
+import { createEventSchema, eventQuerySchema } from '@/lib/validation/schemas';
 
 // GET /api/events - Fetch all events for the authenticated user
 export async function GET(request: Request) {
@@ -12,20 +14,22 @@ export async function GET(request: Request) {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
-  // Get query parameters
-  const url = new URL(request.url);
-  const calendarId = url.searchParams.get('calendarId');
-  const startDate = url.searchParams.get('startDate');
-  const endDate = url.searchParams.get('endDate');
-  
+
+  // Validate query parameters
+  const queryValidation = validateQueryParams(request, eventQuerySchema);
+  if (!queryValidation.success) {
+    return queryValidation.response;
+  }
+
+  const { calendarId, startDate, endDate } = queryValidation.data;
+
   // Build options object
   const options: {
     calendarId?: string;
     startDate?: Date;
     endDate?: Date;
   } = {};
-  
+
   if (calendarId) {
     // Verify user owns or has access to this calendar
     try {
@@ -35,15 +39,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Calendar not found or access denied' }, { status: 403 });
     }
   }
-  
+
   if (startDate) {
     options.startDate = new Date(startDate);
   }
-  
+
   if (endDate) {
     options.endDate = new Date(endDate);
   }
-  
+
   try {
     const events = await getUserEvents(user.id, options);
     return NextResponse.json(events);
@@ -64,28 +68,34 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
+
+  // Validate request body with Zod schema
+  const bodyValidation = await validateRequestBody(request, createEventSchema);
+  if (!bodyValidation.success) {
+    return bodyValidation.response;
+  }
+
+  const eventData = bodyValidation.data;
+
   try {
-    const eventData = await request.json();
-    
     // Handle both calendarId (API) and calendar_id (DB) field names for flexibility
     const calendarId = eventData.calendarId || eventData.calendar_id;
-    
-    if (!calendarId) {
-      return NextResponse.json(
-        { error: 'Calendar ID is required' },
-        { status: 400 }
-      );
+
+    // Verify user owns the calendar
+    try {
+      await getCalendarById(user.id, calendarId);
+    } catch (error) {
+      return NextResponse.json({ error: 'Calendar access denied' }, { status: 403 });
     }
-    
-    console.log("Creating event with data:", {
+
+    console.log("Creating event with validated data:", {
       ...eventData,
       calendarId,
     });
-    
-    // Explicitly pass the calendar ID field in the format expected by the createEvent function
+
+    // Create the event with validated data
     const event = await createEvent(user.id, calendarId, eventData);
-    return NextResponse.json(event);
+    return NextResponse.json(event, { status: 201 });
   } catch (error) {
     console.error('Error creating event:', error);
     return NextResponse.json(
