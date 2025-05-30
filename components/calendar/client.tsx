@@ -52,13 +52,26 @@ export default function CalendarClient({
 
   const handleSelectEvent = (event: AppEvent) => {
     // Open event details modal or navigate to event page
-    console.log('Selected event:', event);
   };
 
   const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
     // Open create event modal or navigate to create event page
-    console.log('Selected slot:', slotInfo);
   };
+
+  // Get calendar data safely
+  const getCalendarData = () => {
+    try {
+      if (typeof calendarData === 'string') {
+        return JSON.parse(calendarData);
+      }
+      return calendarData;
+    } catch (error) {
+      console.error('Error parsing calendar data:', error);
+      return { calendar: null, events: [] };
+    }
+  };
+
+  const parsedData = getCalendarData();
 
   // Convert string view to valid View type
   const getValidView = (view?: string) => {
@@ -69,10 +82,6 @@ export default function CalendarClient({
       default: return 'week';
     }
   };
-
-  // Debug information to help with hydration errors
-  console.log("Calendar ID in client:", calendarId);
-  console.log("Calendar data keys:", Object.keys(calendarData));
 
   const handleFabClick = () => {
     // Create event with current date and calendar pre-selected

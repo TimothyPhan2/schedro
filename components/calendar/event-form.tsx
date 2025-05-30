@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -41,6 +41,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
 import { EventTemplateButton } from "@/components/calendar/event-template-button";
+import { ConflictIndicator } from "@/components/calendar/conflict-indicator";
+import { DurationPreset } from "@/components/calendar/duration-preset";
+import type { AppEvent } from "@/lib/types/event";
 
 // Define the form schema
 const formSchema = z.object({
@@ -91,6 +94,12 @@ export function EventForm({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { getContrastColor } = useCalendarTheme();
+
+  // Conflict detection state
+  const [hasConflict, setHasConflict] = useState(false);
+  const [conflictCount, setConflictCount] = useState(0);
+  const [existingEvents, setExistingEvents] = useState<AppEvent[]>([]);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Predefined color options
   const colorOptions = [
@@ -159,6 +168,186 @@ export function EventForm({
 
   // Watch the allDay value to disable time inputs when true
   const allDay = form.watch("allDay");
+
+  // Watch form values for conflict detection
+  const startDate = form.watch("startDate");
+  const startTime = form.watch("startTime");
+  const endDate = form.watch("endDate");
+  const endTime = form.watch("endTime");
+  const calendarId = form.watch("calendarId");
+
+  // Function to detect conflicts with existing events
+  const checkForConflicts = (
+    eventStart: Date,
+    eventEnd: Date,
+    currentEventId?: string
+  ) => {
+    if (!existingEvents.length) {
+      return { hasConflict: false, count: 0 };
+    }
+
+    const conflicts = existingEvents.filter(existingEvent => {
+      try {
+        // Skip the current event when editing
+        if (currentEventId && String(existingEvent.id) === currentEventId) {
+          return false;
+        }
+
+        // Validate that we have valid Date objects
+        if (!(existingEvent.start instanceof Date) || !(existingEvent.end instanceof Date)) {
+          console.warn('⚠️ Invalid date objects in existing event:', existingEvent);
+          return false;
+        }
+
+        const eventStartTime = existingEvent.start;
+        const eventEndTime = existingEvent.end;
+
+        // Additional validation - check if dates are valid
+        if (isNaN(eventStartTime.getTime()) || isNaN(eventEndTime.getTime())) {
+          console.warn('⚠️ Invalid date values in existing event:', existingEvent);
+          return false;
+        }
+
+        // Check for overlap
+        const hasOverlap = (
+          (eventStart >= eventStartTime && eventStart < eventEndTime) ||
+          (eventEnd > eventStartTime && eventEnd <= eventEndTime) ||
+          (eventStart <= eventStartTime && eventEnd >= eventEndTime)
+        );
+
+        return hasOverlap;
+      } catch (error) {
+        console.error('💥 Error checking individual event:', existingEvent, error);
+        return false;
+      }
+    });
+
+    return {
+      hasConflict: conflicts.length > 0,
+      count: conflicts.length
+    };
+  };
+
+  // Fetch existing events when calendar changes
+  const fetchEvents = useCallback(async () => {
+    if (!calendarId) {
+      setExistingEvents([]);
+      setApiError(null);
+      return;
+    }
+
+    try {
+      setApiError(null);
+      const response = await fetch(`/api/events?calendarId=${calendarId}`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        setApiError(`HTTP ${response.status}: ${errorText}`);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Convert date strings to Date objects with validation
+      const formattedEvents: AppEvent[] = data
+        .map((event: any) => {
+          try {
+            // Handle different possible date field names
+            const startTime = event.start_time || event.startTime || event.start;
+            const endTime = event.end_time || event.endTime || event.end;
+            
+            if (!startTime || !endTime) {
+              console.warn('⚠️ Missing start/end time in event:', event);
+              return null;
+            }
+            
+            const startDate = new Date(startTime);
+            const endDate = new Date(endTime);
+            
+            // Validate dates - check if they're actually invalid
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+              console.warn('⚠️ Invalid date found in event:', {
+                eventId: event.id,
+                title: event.title,
+                startTime,
+                endTime,
+                startDate: startDate.toString(),
+                endDate: endDate.toString()
+              });
+              return null;
+            }
+            
+            return {
+              id: event.id,
+              title: event.title,
+              start: startDate,
+              end: endDate,
+              allDay: event.all_day || false,
+              color: event.color,
+              location: event.location,
+              description: event.description,
+            };
+          } catch (error) {
+            console.error('💥 Error formatting event:', event, error);
+            return null;
+          }
+        })
+        .filter((event: AppEvent | null): event is AppEvent => event !== null);
+      
+      setExistingEvents(formattedEvents);
+    } catch (error) {
+      console.error('💥 Error fetching events for conflict detection:', error);
+      setApiError(error instanceof Error ? error.message : 'Unknown error');
+      setExistingEvents([]);
+    }
+  }, [calendarId]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
+  // Check for conflicts when time or date changes
+  useEffect(() => {
+    if (!startDate || !endDate || (!allDay && (!startTime || !endTime))) {
+      setHasConflict(false);
+      setConflictCount(0);
+      return;
+    }
+
+    try {
+      let eventStart: Date;
+      let eventEnd: Date;
+
+      if (allDay) {
+        eventStart = new Date(`${startDate}T00:00:00`);
+        eventEnd = new Date(`${endDate}T23:59:59`);
+      } else {
+        eventStart = new Date(`${startDate}T${startTime}:00`);
+        eventEnd = new Date(`${endDate}T${endTime}:00`);
+      }
+
+      // Validate the dates
+      if (eventStart >= eventEnd) {
+        setHasConflict(false);
+        setConflictCount(0);
+        return;
+      }
+
+      const { hasConflict: conflicts, count } = checkForConflicts(
+        eventStart,
+        eventEnd,
+        initialData?.id
+      );
+
+      setHasConflict(conflicts);
+      setConflictCount(count);
+    } catch (error) {
+      console.error('💥 Error in conflict detection:', error);
+      setHasConflict(false);
+      setConflictCount(0);
+    }
+  }, [startDate, startTime, endDate, endTime, allDay, existingEvents, initialData?.id]);
 
   const onSubmit = async (data: any) => {
     try {
@@ -371,6 +560,27 @@ export function EventForm({
           )}
         </div>
 
+        {/* Duration Presets */}
+        <DurationPreset
+          show={!allDay}
+          onDurationSelect={(minutes) => {
+            const startDate = form.getValues("startDate");
+            const startTime = form.getValues("startTime");
+            
+            if (startDate && startTime) {
+              // Create start datetime
+              const startDateTime = new Date(`${startDate}T${startTime}:00`);
+              
+              // Add preset duration
+              const endDateTime = new Date(startDateTime.getTime() + minutes * 60000);
+              
+              // Update form fields
+              form.setValue("endDate", format(endDateTime, "yyyy-MM-dd"));
+              form.setValue("endTime", format(endDateTime, "HH:mm"));
+            }
+          }}
+        />
+
         <FormField
           control={form.control}
           name="allDay"
@@ -391,6 +601,14 @@ export function EventForm({
             </FormItem>
           )}
         />
+
+        {/* Conflict Detection Indicator */}
+        {hasConflict && (
+          <ConflictIndicator 
+            message="This event overlaps with existing events"
+            conflictCount={conflictCount}
+          />
+        )}
 
         <FormField
           control={form.control}

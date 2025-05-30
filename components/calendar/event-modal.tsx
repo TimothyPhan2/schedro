@@ -111,15 +111,9 @@ export function EventModal({
       const endDate = new Date(defaultDate);
       endDate.setHours(endDate.getHours() + 1);
       
-      // Debug info
-      console.log("Creating event with defaultDate:", defaultDate);
-      console.log("defaultCalendarId:", defaultCalendarId);
-      console.log("calendars:", calendars);
-      
       // For a new event, don't include an id property at all
       // This will ensure the form uses POST instead of PUT
       const calendarId = defaultCalendarId || (calendars.length > 0 ? calendars[0].id : "");
-      console.log("Using calendar_id:", calendarId);
       
       return {
         title: "",

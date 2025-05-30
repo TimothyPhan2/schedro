@@ -359,11 +359,6 @@ export function CalendarView({
     const convertedStart = fromTimeZone(slotInfo.start, timeZone);
     const convertedEnd = fromTimeZone(slotInfo.end, timeZone);
     
-    // Debug the calendar ID and selected time
-    console.log("Calendar ID in handleSelectSlot:", calendarId);
-    console.log("Selected slot start:", convertedStart);
-    console.log("Selected slot end:", convertedEnd);
-    
     // Open the event creation modal with the selected date and time
     createEvent(convertedStart, calendarId);
     
