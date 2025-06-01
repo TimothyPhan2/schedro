@@ -33,9 +33,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <AuthProvider>
             {children}
-            <Analytics />
           </AuthProvider>
         </ThemeProvider>
+            <Analytics />
         <Toaster />
       </body>
     </html>
