@@ -39,4 +39,21 @@ export async function getAuthenticatedUser() {
     }
   
     return { user, supabase };
+}
+
+export async function createAnonymousSupabaseClient() {
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return [] // No cookies for anonymous access
+        },
+        setAll() {
+          // No-op for anonymous access
+        },
+      },
+    }
+  )
 } 

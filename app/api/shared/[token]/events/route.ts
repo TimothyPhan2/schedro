@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PermissionValidator } from '@/lib/permissions/validator'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createAnonymousSupabaseClient } from '@/lib/supabase/server'
 import type { AppEvent } from '@/lib/types/event'
 
 export async function GET(
@@ -13,7 +13,7 @@ export async function GET(
     const password = searchParams.get('password') || undefined
 
     // Create server-side Supabase client and pass to PermissionValidator
-    const supabase = await createServerSupabaseClient()
+    const supabase = await createAnonymousSupabaseClient()
     const validator = new PermissionValidator(supabase)
     const validation = await validator.validateToken(token, password)
 
