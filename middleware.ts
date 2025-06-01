@@ -13,8 +13,10 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - shared/* (shared calendar links)
+     * - api/shared/* (shared calendar links)
+     * - api/verify-shared-password/* (shared calendar links)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|shared|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|shared|api/shared|api/verify-shared-password|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
