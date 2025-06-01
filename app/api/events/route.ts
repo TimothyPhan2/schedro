@@ -35,7 +35,7 @@ export async function GET(request: Request) {
     try {
       await getCalendarById(user.id, calendarId);
       options.calendarId = calendarId;
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: 'Calendar not found or access denied' }, { status: 403 });
     }
   }
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     // Verify user owns the calendar
     try {
       await getCalendarById(user.id, calendarId);
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: 'Calendar access denied' }, { status: 403 });
     }
 

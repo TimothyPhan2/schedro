@@ -5,7 +5,7 @@ import { validateRequestBody } from '@/lib/validation/api-helpers';
 import { createCalendarSchema } from '@/lib/validation/schemas';
 
 // GET /api/calendars - Fetch all calendars for the authenticated user
-export async function GET(request: Request) {
+export async function GET() {
   // Get authenticated user securely
   const { user } = await getAuthenticatedUser();
   

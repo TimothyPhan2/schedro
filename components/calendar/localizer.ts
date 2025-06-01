@@ -1,5 +1,5 @@
 import { dateFnsLocalizer } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
+import { parse, startOfWeek, getDay } from 'date-fns';
 import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 import { enUS } from 'date-fns/locale';
 
@@ -21,7 +21,7 @@ export const toTimeZone = (date: Date, timeZone = defaultTimeZone) => {
 };
 
 // Convert a date from a specific timezone to UTC
-export const fromTimeZone = (date: Date, timeZone = defaultTimeZone) => {
+export const fromTimeZone = (date: Date) => {
   // We need to preserve the exact date and time that was selected in the calendar
   // without any timezone adjustments
   return new Date(date);

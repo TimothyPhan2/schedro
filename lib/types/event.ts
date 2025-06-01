@@ -4,7 +4,7 @@ export interface AppEvent {
   start: Date;
   end: Date;
   allDay?: boolean;
-  resource?: any; // For resource views, if needed later
+  resource?: unknown; // For resource views, if needed later
   // Extended properties
   color?: string; // CSS color for event background
   location?: string; // Location of the event

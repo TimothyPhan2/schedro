@@ -5,9 +5,7 @@ import type { AppEvent } from '@/lib/types/event';
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useCalendarTheme } from '@/hooks/use-calendar-theme';
 
-interface EventComponentProps extends EventProps<AppEvent> {}
-
-export const EventComponent = (props: EventComponentProps) => {
+export const EventComponent = (props: EventProps<AppEvent>) => {
   const { event, title } = props;
   const isMobile = useMediaQuery("(max-width: 640px)");
   const isTablet = useMediaQuery("(min-width: 641px) and (max-width: 1024px)");

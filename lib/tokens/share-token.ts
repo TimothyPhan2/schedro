@@ -39,11 +39,11 @@ export class ShareTokenManager {
    * 
    * @example
    * ```typescript
-   * const token = ShareTokenManager.generate({ calendarId: 'abc-123' });
+   * const token = await ShareTokenManager.generate({ calendarId: 'abc-123' });
    * // Returns: "cal_YWJjLTEyMw_a1b2c3...64chars..._f7a8b9c0"
    * ```
    */
-  static generate(options: TokenGenerationOptions): string {
+  static async generate(options: TokenGenerationOptions): Promise<string> {
     this.validateCalendarId(options.calendarId);
 
     const prefix = options.prefix || this.CONFIG.PREFIX;
@@ -53,14 +53,14 @@ export class ShareTokenManager {
       const encodedCalendarId = SecureCrypto.encodeBase64URL(options.calendarId);
       
       // Step 2: Generate cryptographically secure random component
-      const randomComponent = SecureCrypto.generateSecureRandom(this.CONFIG.RANDOM_BYTES);
+      const randomComponent = await SecureCrypto.generateSecureRandom(this.CONFIG.RANDOM_BYTES);
       
       // Step 3: Create payload for HMAC signing
       const payload = this.createPayload(prefix, encodedCalendarId, randomComponent);
       
       // Step 4: Generate HMAC checksum for integrity
       const secretKey = this.getSecretKey();
-      const checksum = SecureCrypto.generateHMAC(payload, secretKey, this.CONFIG.HMAC_LENGTH);
+      const checksum = await SecureCrypto.generateHMAC(payload, secretKey, this.CONFIG.HMAC_LENGTH);
       
       // Step 5: Assemble final token
       return `${payload}${this.TOKEN_SEPARATOR}${checksum}`;
@@ -89,14 +89,14 @@ export class ShareTokenManager {
    * 
    * @example
    * ```typescript
-   * const result = ShareTokenManager.validate('cal_YWJjLTEyMw_..._f7a8b9c0');
+   * const result = await ShareTokenManager.validate('cal_YWJjLTEyMw_..._f7a8b9c0');
    * if (result.isValid) {
    *   console.log('Calendar ID:', result.calendarId);
    *   console.log('Random component:', result.randomComponent);
    * }
    * ```
    */
-  static validate(token: string): TokenValidationResult {
+  static async validate(token: string): Promise<TokenValidationResult> {
     try {
       // Step 1: Basic format validation
       const components = this.parseTokenComponents(token);
@@ -140,9 +140,9 @@ export class ShareTokenManager {
       );
       
       const secretKey = this.getSecretKey();
-      const expectedChecksum = SecureCrypto.generateHMAC(payload, secretKey, this.CONFIG.HMAC_LENGTH);
+      const expectedChecksum = await SecureCrypto.generateHMAC(payload, secretKey, this.CONFIG.HMAC_LENGTH);
       
-      const isValidChecksum = SecureCrypto.timingSafeEqual(
+      const isValidChecksum = await SecureCrypto.timingSafeEqual(
         components.checksum,
         expectedChecksum
       );
@@ -273,7 +273,15 @@ export class ShareTokenManager {
   }
 
   private static getSecretKey(): string {
-    return SecureCrypto.getRequiredEnvVar(this.SECRET_KEY_ENV);
+    const value = process.env[this.SECRET_KEY_ENV];
+    if (!value) {
+      throw new TokenError(
+        `Required environment variable ${this.SECRET_KEY_ENV} is not set`,
+        TOKEN_ERROR_CODES.INVALID_CALENDAR_ID,
+        { variableName: this.SECRET_KEY_ENV }
+      );
+    }
+    return value;
   }
 
   private static createPayload(

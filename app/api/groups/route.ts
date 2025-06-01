@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/server';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
 
 // GET /api/groups - Fetch all groups for the authenticated user
-export async function GET(request: Request) {
+export async function GET() {
   // Get authenticated user securely
-  const { user, supabase } = await getAuthenticatedUser();
+  const { user } = await getAuthenticatedUser();
   
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -40,9 +40,9 @@ export async function GET(request: Request) {
 }
 
 // POST /api/groups - Create a new group
-export async function POST(request: Request) {
+export async function POST() {
   // Get authenticated user securely
-  const { user, supabase } = await getAuthenticatedUser();
+  const { user } = await getAuthenticatedUser();
   
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

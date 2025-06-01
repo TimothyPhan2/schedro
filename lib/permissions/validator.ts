@@ -1,5 +1,6 @@
 import { ShareTokenManager } from '@/lib/tokens/share-token'
 import { SharedLinksDatabase } from '@/lib/database/shared-links'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { 
   PermissionValidationResult, 
   SharedLinkPermission, 
@@ -11,8 +12,8 @@ import {
 export class PermissionValidator {
   private database: SharedLinksDatabase
 
-  constructor() {
-    this.database = new SharedLinksDatabase()
+  constructor(supabaseClient: SupabaseClient) {
+    this.database = new SharedLinksDatabase(supabaseClient)
   }
 
   /**
@@ -24,7 +25,7 @@ export class PermissionValidator {
   ): Promise<PermissionValidationResult> {
     try {
       // Step 1: Validate token format and extract calendar ID using static methods
-      const tokenValidation = ShareTokenManager.validate(token)
+      const tokenValidation = await ShareTokenManager.validate(token)
       if (!tokenValidation.isValid) {
         return {
           isValid: false,

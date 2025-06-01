@@ -16,7 +16,7 @@ export default async function CalendarPage() {
     
     // Get event counts for each calendar
     const supabase = await createServerSupabaseClient();
-    let eventCountMap: Record<string, number> = {};
+    const eventCountMap: Record<string, number> = {};
     
     if (calendars.length > 0) {
       const { data: allEvents, error: countError } = await supabase

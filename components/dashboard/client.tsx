@@ -59,7 +59,7 @@ export default function DashboardClient({
           <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
           {user && (
             <p className="text-sm md:text-base text-muted-foreground">
-              Welcome back! Here's your calendar overview.
+              Welcome back! Here&apos;s your calendar overview.
             </p>
           )}
         </div>

@@ -19,7 +19,7 @@ async function CalendarContent({
 
   // Ensure calendar exists in the returned data
   if (!calendarData?.calendar) {
-    return <div>Calendar not found or you don't have access</div>;
+    return <div>Calendar not found or you don&apos;t have access</div>;
   }
 
   // Ensure events array is defined, even if empty

@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { EventForm } from "./event-form";
 import { Loader2, CalendarPlus } from "lucide-react";

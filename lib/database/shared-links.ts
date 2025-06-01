@@ -1,4 +1,3 @@
-import { createClientSupabaseClient } from '@/lib/supabase/client';
 import { ShareTokenManager } from '@/lib/tokens/share-token';
 import type { 
   SharedLinkCreateOptions, 
@@ -31,16 +30,14 @@ export interface SharedLinkRecord extends SharedLinkData {
 }
 
 export class SharedLinksDatabase {
-  private _supabase?: SupabaseClient;
+  private supabase: SupabaseClient;
 
   /**
-   * Get Supabase client (lazy-loaded)
+   * Constructor that accepts a Supabase client
+   * This allows us to use authenticated server-side clients for RLS policies
    */
-  private get supabase() {
-    if (!this._supabase) {
-      this._supabase = createClientSupabaseClient();
-    }
-    return this._supabase;
+  constructor(supabaseClient: SupabaseClient) {
+    this.supabase = supabaseClient;
   }
 
   /**
@@ -51,8 +48,8 @@ export class SharedLinksDatabase {
     token: string;
   }> {
     // Generate secure token
-    const token = ShareTokenManager.generate({ calendarId: options.calendarId });
-    const tokenValidation = ShareTokenManager.validate(token);
+    const token = await ShareTokenManager.generate({ calendarId: options.calendarId });
+    const tokenValidation = await ShareTokenManager.validate(token);
     
     if (!tokenValidation.isValid || !tokenValidation.randomComponent) {
       throw new Error('Failed to generate valid token');
@@ -97,7 +94,7 @@ export class SharedLinksDatabase {
     validation: TokenValidationResult;
   }> {
     // Validate token structure and extract components
-    const validation = ShareTokenManager.validate(token);
+    const validation = await ShareTokenManager.validate(token);
     
     if (!validation.isValid || !validation.randomComponent) {
       return { record: null, validation };
@@ -322,11 +319,11 @@ export class SharedLinksDatabase {
 }
 
 // Export a function to create the database instance
-export function createSharedLinksDatabase() {
-  return new SharedLinksDatabase();
+export function createSharedLinksDatabase(supabaseClient: SupabaseClient) {
+  return new SharedLinksDatabase(supabaseClient);
 }
 
 // Export singleton instance (but don't instantiate it at module level)
 export const sharedLinksDB = {
-  getInstance: () => new SharedLinksDatabase()
+  getInstance: (supabaseClient: SupabaseClient) => new SharedLinksDatabase(supabaseClient)
 }; 

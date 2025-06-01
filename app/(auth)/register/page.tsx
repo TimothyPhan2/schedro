@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function RegisterPage() {
@@ -17,7 +16,6 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccessful, setIsSuccessful] = useState(false);
   const { signUp } = useAuth();
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,8 +38,8 @@ export default function RegisterPage() {
     try {
       await signUp(email, password);
       setIsSuccessful(true);
-    } catch (error: any) {
-      if (error.message) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message) {
         setError(error.message);
       } else {
         setError('An error occurred during registration. Please try again.');
@@ -59,7 +57,7 @@ export default function RegisterPage() {
           <CardHeader>
             <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
             <CardDescription>
-              We've sent a confirmation link to {email}. Please check your inbox and confirm your email address.
+              We&apos;ve sent a confirmation link to {email}. Please check your inbox and confirm your email address.
             </CardDescription>
           </CardHeader>
         </Card>

@@ -28,7 +28,8 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
     const nextWeek = addDays(now, 7);
     
     let upcomingEvents = [];
-    let eventCountMap: Record<string, number> = {};
+    // Create a map to count events per calendar
+    const eventCountMap = new Map<string, number>();
     
     if (calendars.length > 0) {
       // Get upcoming events
@@ -56,7 +57,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
       } else {
         // Count events per calendar
         (allEvents || []).forEach(event => {
-          eventCountMap[event.calendar_id] = (eventCountMap[event.calendar_id] || 0) + 1;
+          eventCountMap.set(event.calendar_id, (eventCountMap.get(event.calendar_id) || 0) + 1);
         });
       }
     }
@@ -64,7 +65,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
     // Map event counts to calendars
     const calendarsWithEventCount = calendars.map(calendar => ({
       ...calendar,
-      eventCount: eventCountMap[calendar.id] || 0
+      eventCount: eventCountMap.get(calendar.id) || 0
     }));
     
     return {

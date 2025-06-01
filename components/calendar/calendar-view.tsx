@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
-import { Calendar, Views, View, Navigate, type DateLocalizer, type Components } from 'react-big-calendar';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { Calendar, Views, View, type Components } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { localizer, toTimeZone, fromTimeZone, getDefaultTimeZone } from './localizer';
 import type { AppEvent } from '@/lib/types/event';
@@ -82,12 +82,12 @@ export function CalendarView({
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   
   // For mobile, default to day view but don't force it
-  const getResponsiveDefaultView = () => {
+  const getResponsiveDefaultView = useCallback(() => {
     if (isMobile) {
       return Views.DAY;
     }
     return defaultView || Views.WEEK;
-  };
+  }, [isMobile, defaultView]);
   
   const [view, setView] = useState<View>(getResponsiveDefaultView());
   const [height, setHeight] = useState<number>(600);
@@ -107,7 +107,7 @@ export function CalendarView({
   // Update view when screen size changes
   useEffect(() => {
     setView(getResponsiveDefaultView());
-  }, [isMobile, defaultView]);
+  }, [isMobile, defaultView, getResponsiveDefaultView]);
   
   // Update calendar height when window is resized
   useEffect(() => {
@@ -178,8 +178,8 @@ export function CalendarView({
   // Handle slot selection - open event creation modal
   const handleSelectSlot = (slotInfo: { start: Date; end: Date; slots: Date[] | string[]; action: 'select' | 'click' | 'doubleClick' }) => {
     // Convert from local timezone before passing to handler
-    const convertedStart = fromTimeZone(slotInfo.start, timeZone);
-    const convertedEnd = fromTimeZone(slotInfo.end, timeZone);
+    const convertedStart = fromTimeZone(slotInfo.start);
+    const convertedEnd = fromTimeZone(slotInfo.end);
     
     // Open the event creation modal with the selected date and time
     createEvent(convertedStart, calendarId);
@@ -202,8 +202,8 @@ export function CalendarView({
       id: String(event.id),
       title: event.title,
       description: event.description || '',
-      start_time: fromTimeZone(event.start, timeZone).toISOString(),
-      end_time: fromTimeZone(event.end, timeZone).toISOString(),
+      start_time: fromTimeZone(event.start).toISOString(),
+      end_time: fromTimeZone(event.end).toISOString(),
       location: event.location || '',
       all_day: event.allDay || false,
       calendar_id: calendarId || '',

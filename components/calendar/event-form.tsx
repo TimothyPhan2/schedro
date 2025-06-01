@@ -28,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCalendarTheme } from "@/hooks/use-calendar-theme";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,8 +58,6 @@ const formSchema = z.object({
   groupId: z.string().optional(),
   color: z.string().optional(),
 });
-
-type FormValues = z.infer<typeof formSchema>;
 
 type EventFormProps = {
   initialData?: {
@@ -93,13 +90,12 @@ export function EventForm({
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { getContrastColor } = useCalendarTheme();
+
 
   // Conflict detection state
   const [hasConflict, setHasConflict] = useState(false);
   const [conflictCount, setConflictCount] = useState(0);
   const [existingEvents, setExistingEvents] = useState<AppEvent[]>([]);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   // Predefined color options
   const colorOptions = [
@@ -160,7 +156,8 @@ export function EventForm({
   };
 
   // Initialize the form with react-hook-form
-  // Using any type to bypass TypeScript errors with react-hook-form
+  // Using any type to avoid complex react-hook-form typing issues
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form = useForm<any>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -177,7 +174,7 @@ export function EventForm({
   const calendarId = form.watch("calendarId");
 
   // Function to detect conflicts with existing events
-  const checkForConflicts = (
+  const checkForConflicts = useCallback((
     eventStart: Date,
     eventEnd: Date,
     currentEventId?: string
@@ -226,24 +223,21 @@ export function EventForm({
       hasConflict: conflicts.length > 0,
       count: conflicts.length
     };
-  };
+  }, [existingEvents]);
 
   // Fetch existing events when calendar changes
   const fetchEvents = useCallback(async () => {
     if (!calendarId) {
       setExistingEvents([]);
-      setApiError(null);
       return;
     }
 
     try {
-      setApiError(null);
       const response = await fetch(`/api/events?calendarId=${calendarId}`);
       
       if (!response.ok) {
         const errorText = await response.text();
         console.error('API Error:', response.status, errorText);
-        setApiError(`HTTP ${response.status}: ${errorText}`);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
@@ -251,7 +245,7 @@ export function EventForm({
       
       // Convert date strings to Date objects with validation
       const formattedEvents: AppEvent[] = data
-        .map((event: any) => {
+        .map((event: Record<string, unknown>) => {
           try {
             // Handle different possible date field names
             const startTime = event.start_time || event.startTime || event.start;
@@ -262,8 +256,8 @@ export function EventForm({
               return null;
             }
             
-            const startDate = new Date(startTime);
-            const endDate = new Date(endTime);
+            const startDate = new Date(typeof startTime === 'string' ? startTime : '');
+            const endDate = new Date(typeof endTime === 'string' ? endTime : '');
             
             // Validate dates - check if they're actually invalid
             if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
@@ -298,7 +292,6 @@ export function EventForm({
       setExistingEvents(formattedEvents);
     } catch (error) {
       console.error('💥 Error fetching events for conflict detection:', error);
-      setApiError(error instanceof Error ? error.message : 'Unknown error');
       setExistingEvents([]);
     }
   }, [calendarId]);
@@ -347,9 +340,9 @@ export function EventForm({
       setHasConflict(false);
       setConflictCount(0);
     }
-  }, [startDate, startTime, endDate, endTime, allDay, existingEvents, initialData?.id]);
+  }, [startDate, startTime, endDate, endTime, allDay, existingEvents, initialData?.id, checkForConflicts]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       // Verify calendar is selected
       if (!data.calendarId) {

@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { FormLabel, FormDescription } from "@/components/ui/form";
-import { format } from "date-fns";
 
 interface DurationPresetProps {
   /** Called when a duration preset is selected */

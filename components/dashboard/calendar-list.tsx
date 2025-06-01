@@ -1,11 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { Calendar } from '@/lib/calendars';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarIcon, EyeIcon, PencilIcon, TrashIcon, UsersIcon } from 'lucide-react';
+import { CalendarIcon, EyeIcon, PencilIcon, TrashIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface CalendarListProps {
@@ -14,12 +13,6 @@ interface CalendarListProps {
 }
 
 export function CalendarList({ calendars, onDelete }: CalendarListProps) {
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
-
-  const toggleExpand = (calendarId: string) => {
-    setExpandedCard(expandedCard === calendarId ? null : calendarId);
-  };
-
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {calendars.map((calendar) => (

@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { PermissionValidator } from '@/lib/permissions/validator'
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
+  const supabaseResponse = NextResponse.next({
     request,
   })
 
@@ -15,14 +15,8 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
+        setAll() {
+          // No-op in middleware context
         },
       },
     }
@@ -90,8 +84,24 @@ async function handleSharedRoute(
       return NextResponse.redirect(new URL('/shared/invalid', request.url))
     }
 
+    // Create Supabase client for validation
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll() {
+            // No-op in middleware context
+          },
+        },
+      }
+    )
+
     // Validate the token
-    const validator = new PermissionValidator()
+    const validator = new PermissionValidator(supabase)
     const password = request.nextUrl.searchParams.get('password') || undefined
     const validation = await validator.validateToken(token, password)
 

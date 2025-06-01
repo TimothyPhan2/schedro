@@ -15,9 +15,7 @@ import {
   RectangleVerticalIcon, // For Day view (using a more abstract icon)
 } from 'lucide-react';
 
-interface CustomToolbarProps extends ToolbarProps<AppEvent, object> {}
-
-export const CustomToolbar = (props: CustomToolbarProps) => {
+export const CustomToolbar = (props: ToolbarProps<AppEvent, object>) => {
   const { label, onNavigate, onView, view, views: availableViewsObject } = props;
   const isMobile = useMediaQuery("(max-width: 640px)");
 

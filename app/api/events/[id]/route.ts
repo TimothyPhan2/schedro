@@ -22,7 +22,7 @@ export async function GET(
     // Validate path parameters
     try {
       idParamsSchema.parse({ id });
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid event ID format' },
         { status: 400 }
@@ -82,7 +82,7 @@ export async function PUT(
     // Validate path parameters
     try {
       idParamsSchema.parse({ id });
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid event ID format' },
         { status: 400 }
@@ -167,7 +167,7 @@ export async function DELETE(
     // Validate path parameters
     try {
       idParamsSchema.parse({ id });
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid event ID format' },
         { status: 400 }

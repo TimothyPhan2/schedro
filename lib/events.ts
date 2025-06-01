@@ -2,29 +2,29 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { AppEvent } from '@/lib/types/event';
 
 // Convert database event to AppEvent format
-export function formatEvent(dbEvent: any): AppEvent {
+export function formatEvent(dbEvent: Record<string, unknown>): AppEvent {
   // Ensure we're creating proper Date objects that can be serialized
-  const startDate = new Date(dbEvent.start_time);
-  const endDate = new Date(dbEvent.end_time);
+  const startDate = new Date(dbEvent.start_time as string);
+  const endDate = new Date(dbEvent.end_time as string);
   
   // Convert to ISO strings for safer serialization
   const start = startDate;
   const end = endDate;
   
   return {
-    id: dbEvent.id,
-    title: dbEvent.title,
+    id: dbEvent.id as string,
+    title: dbEvent.title as string,
     start,
     end,
-    allDay: dbEvent.all_day || false,
-    color: dbEvent.color || undefined,
-    location: dbEvent.location,
-    description: dbEvent.description,
+    allDay: dbEvent.all_day as boolean || false,
+    color: dbEvent.color as string || undefined,
+    location: dbEvent.location as string,
+    description: dbEvent.description as string,
   };
 }
 
 // Convert AppEvent to database format
-export function formatEventForDb(event: AppEvent): any {
+export function formatEventForDb(event: AppEvent): Record<string, unknown> {
   return {
     title: event.title,
     start_time: event.start.toISOString(),
@@ -106,7 +106,7 @@ export async function getEventById(eventId: string) {
 }
 
 // Create a new event
-export async function createEvent(userId: string, calendarId: string, eventData: any) {
+export async function createEvent(userId: string, calendarId: string, eventData: Record<string, unknown>) {
   console.log("createEvent called with:", { userId, calendarId, eventData });
   const supabase = await createServerSupabaseClient();
   
@@ -126,8 +126,8 @@ export async function createEvent(userId: string, calendarId: string, eventData:
   // Extract known fields for AppEvent but don't assume all fields are present
   const appEventFields = {
     title: eventData.title || "Untitled Event",
-    start: eventData.start || new Date(eventData.start_time),
-    end: eventData.end || new Date(eventData.end_time),
+    start: eventData.start || new Date(eventData.start_time as string),
+    end: eventData.end || new Date(eventData.end_time as string),
     allDay: eventData.all_day || eventData.allDay || false,
     location: eventData.location,
     description: eventData.description,

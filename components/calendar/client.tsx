@@ -1,18 +1,20 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { CalendarView } from '@/components/calendar/calendar-view';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { Calendar } from '@/lib/calendars';
 import { AppEvent } from '@/lib/types/event';
-import { ArrowLeft, Share2, Edit, Trash } from 'lucide-react';
+import { ArrowLeft, Share2, Trash } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useEvent } from '@/hooks/use-event';
 import { EventModal } from '@/components/calendar/event-modal';
 import { useDeleteCalendar } from '@/hooks/use-delete-calendar';
 import { DeleteCalendarDialog } from '@/components/calendar/delete-calendar-dialog';
+import { ShareCalendarDialog } from '@/components/calendar/share-calendar-dialog';
 
 interface CalendarData {
   calendar: Calendar;
@@ -28,13 +30,14 @@ export default function CalendarClient({
 }) {
   const router = useRouter();
   const { calendar, events } = calendarData;
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  
   const { 
     isModalOpen, 
     selectedEvent, 
     defaultDate, 
     defaultCalendarId, 
     createEvent, 
-    editEvent, 
     closeModal, 
     deleteEvent 
   } = useEvent();
@@ -50,28 +53,17 @@ export default function CalendarClient({
     openDeleteDialog(calendarId);
   };
 
-  const handleSelectEvent = (event: AppEvent) => {
+  const handleShareCalendar = () => {
+    setIsShareDialogOpen(true);
+  };
+
+  const handleSelectEvent = () => {
     // Open event details modal or navigate to event page
   };
 
-  const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
+  const handleSelectSlot = () => {
     // Open create event modal or navigate to create event page
   };
-
-  // Get calendar data safely
-  const getCalendarData = () => {
-    try {
-      if (typeof calendarData === 'string') {
-        return JSON.parse(calendarData);
-      }
-      return calendarData;
-    } catch (error) {
-      console.error('Error parsing calendar data:', error);
-      return { calendar: null, events: [] };
-    }
-  };
-
-  const parsedData = getCalendarData();
 
   // Convert string view to valid View type
   const getValidView = (view?: string) => {
@@ -109,7 +101,12 @@ export default function CalendarClient({
         </div>
         
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1"
+            onClick={handleShareCalendar}
+          >
             <Share2 className="h-4 w-4" />
             Share
           </Button>
@@ -167,6 +164,14 @@ export default function CalendarClient({
         isDeleting={isDeleting}
         onClose={closeDeleteDialog}
         onConfirm={confirmDelete}
+      />
+
+      {/* Share Calendar Dialog */}
+      <ShareCalendarDialog
+        isOpen={isShareDialogOpen}
+        onClose={() => setIsShareDialogOpen(false)}
+        calendarId={calendarId}
+        calendarName={calendar.name}
       />
     </div>
   );
