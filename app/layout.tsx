@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-
+import { Analytics } from "@vercel/analytics/next"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -33,6 +33,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <AuthProvider>
             {children}
+            <Analytics />
           </AuthProvider>
         </ThemeProvider>
         <Toaster />
