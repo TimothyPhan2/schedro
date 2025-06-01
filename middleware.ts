@@ -15,6 +15,6 @@ export const config = {
      * - shared/* (shared calendar links)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|shared|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|shared|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
