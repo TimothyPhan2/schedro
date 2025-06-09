@@ -42,7 +42,8 @@ export default async function SharedCalendarPage({
 
   } catch (error) {
     console.error('💥 Error loading shared calendar:', error)
-    return notFound()
+    // Redirect to invalid page with generic error
+    redirect(`/shared/invalid?error=${encodeURIComponent('An error occurred while loading the calendar')}`)
   }
 
   // Handle redirects outside try-catch block per Next.js best practices
@@ -52,8 +53,10 @@ export default async function SharedCalendarPage({
   }
 
   if (!validation.isValid || !validation.permission) {
-    console.log('❌ Validation failed, showing 404')
-    return notFound()
+    console.log('❌ Validation failed, redirecting to invalid page')
+    // Redirect to invalid page with specific error message
+    const errorMessage = validation.error || 'This shared calendar link is not valid'
+    redirect(`/shared/invalid?error=${encodeURIComponent(errorMessage)}`)
   }
 
   console.log('✅ Access granted, showing calendar')
