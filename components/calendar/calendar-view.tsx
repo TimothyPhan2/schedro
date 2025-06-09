@@ -29,6 +29,7 @@ interface CalendarViewProps {
   onSelectSlot?: (slotInfo: { start: Date; end: Date; slots: Date[] | string[]; action: 'select' | 'click' | 'doubleClick' }) => void;
   showThemeControls?: boolean;
   showTimezoneSelector?: boolean;
+  readOnly?: boolean;
   defaultColorScheme?: string;
   calendarId?: string;
   onEventChange?: () => void;
@@ -70,6 +71,7 @@ export function CalendarView({
   onSelectSlot,
   showThemeControls = true,
   showTimezoneSelector = true,
+  readOnly = false,
   calendarId,
   onEventChange,
 }: CalendarViewProps) {
@@ -309,9 +311,9 @@ export function CalendarView({
           date={currentDate}
           dayLayoutAlgorithm="no-overlap"
           onNavigate={handleNavigate}
-          onSelectEvent={handleSelectEvent}
-          onSelectSlot={handleSelectSlot}
-          selectable
+          onSelectEvent={readOnly ? undefined : handleSelectEvent}
+          onSelectSlot={readOnly ? undefined : handleSelectSlot}
+          selectable={!readOnly}
           scrollToTime={new Date(new Date().setHours(6))}
           components={components}
           style={{ height }}

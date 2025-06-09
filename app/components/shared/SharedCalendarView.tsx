@@ -183,10 +183,8 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
         <CalendarView
           events={data.events}
           calendarId={data.calendarId}
-          // Enable event creation only for edit permissions
-          onSelectSlot={data.permissions === 'edit' ? undefined : () => {}}
-          // Enable event viewing/editing only for edit permissions  
-          onSelectEvent={data.permissions === 'edit' ? undefined : () => {}}
+          // Set readOnly based on permissions - view permissions get read-only calendar
+          readOnly={data.permissions === 'view'}
           // Show theme controls for better UX but hide timezone selector for simplicity
           showThemeControls={true}
           showTimezoneSelector={false}
