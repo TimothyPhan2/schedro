@@ -1,4 +1,4 @@
-gi'use client'
+'use client'
 
 import { useSearchParams } from 'next/navigation'
 import { Alert, AlertDescription } from '@/components/ui/alert'
