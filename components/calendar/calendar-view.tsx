@@ -185,10 +185,7 @@ export function CalendarView({
     const convertedStart = fromTimeZone(slotInfo.start);
     const convertedEnd = fromTimeZone(slotInfo.end);
     
-    // Open the event creation modal with the selected date and time
-    createEvent(convertedStart, calendarId);
-    
-    // Also call the original onSelectSlot if provided
+    // Call the custom onSelectSlot handler if provided
     if (onSelectSlot) {
       const convertedSlotInfo = {
         ...slotInfo,
@@ -196,30 +193,34 @@ export function CalendarView({
         end: convertedEnd,
       };
       onSelectSlot(convertedSlotInfo);
+    } else {
+      // Only open the internal event creation modal if no custom handler is provided
+      createEvent(convertedStart, calendarId);
     }
   };
   
   // Handle event selection - open event editing modal
   const handleSelectEvent = (event: AppEvent) => {
-    // Format the event data for the modal
-    const formattedEvent = {
-      id: String(event.id),
-      title: event.title,
-      description: event.description || '',
-      start_time: fromTimeZone(event.start).toISOString(),
-      end_time: fromTimeZone(event.end).toISOString(),
-      location: event.location || '',
-      all_day: event.allDay || false,
-      calendar_id: calendarId || '',
-      color: event.color,
-    };
-    
-    // Open the event editing modal
-    editEvent(formattedEvent);
-    
-    // Also call the original onSelectEvent if provided
+    // Call the custom onSelectEvent handler if provided
     if (onSelectEvent) {
       onSelectEvent(event);
+    } else {
+      // Only open the internal event editing modal if no custom handler is provided
+      // Format the event data for the modal
+      const formattedEvent = {
+        id: String(event.id),
+        title: event.title,
+        description: event.description || '',
+        start_time: fromTimeZone(event.start).toISOString(),
+        end_time: fromTimeZone(event.end).toISOString(),
+        location: event.location || '',
+        all_day: event.allDay || false,
+        calendar_id: calendarId || '',
+        color: event.color,
+      };
+      
+      // Open the event editing modal
+      editEvent(formattedEvent);
     }
   };
   

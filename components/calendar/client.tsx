@@ -57,13 +57,7 @@ export default function CalendarClient({
     setIsShareDialogOpen(true);
   };
 
-  const handleSelectEvent = () => {
-    // Open event details modal or navigate to event page
-  };
 
-  const handleSelectSlot = () => {
-    // Open create event modal or navigate to create event page
-  };
 
   // Convert string view to valid View type
   const getValidView = (view?: string) => {
@@ -136,8 +130,6 @@ export default function CalendarClient({
             <CardContent>
                 <CalendarView 
                     events={events}
-                    onSelectEvent={handleSelectEvent}
-                    onSelectSlot={handleSelectSlot}
                     defaultView={getValidView(calendar.default_view)}
                     calendarId={calendarId}
                 />
