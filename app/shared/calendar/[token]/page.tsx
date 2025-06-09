@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { PermissionValidator } from '@/lib/permissions/validator'
 import { SharedCalendarView } from '@/app/components/shared/SharedCalendarView'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
