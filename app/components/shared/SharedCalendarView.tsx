@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Share, Shield, Eye, Edit, Clock } from 'lucide-react'
 import { SharedEventModal } from './SharedEventModal'
+import { FloatingActionButton } from '@/components/ui/floating-action-button'
 import type { AppEvent } from '@/lib/types/event'
 import type { SharedLinkPermission } from '@/lib/permissions/types'
 
@@ -128,6 +129,16 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
     setIsEventModalOpen(false)
     setSelectedDate(undefined)
     setSelectedEvent(undefined)
+  }
+
+  const handleFabClick = () => {
+    if (data?.permissions === 'edit') {
+      // Create event with current date pre-selected
+      const today = new Date()
+      setSelectedDate(today)
+      setSelectedEvent(undefined)
+      setIsEventModalOpen(true)
+    }
   }
 
   if (loading) {
@@ -255,6 +266,11 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
           </div>
         </div>
       </div>
+
+      {/* Floating Action Button for mobile event creation */}
+      {data.permissions === 'edit' && (
+        <FloatingActionButton onClick={handleFabClick} />
+      )}
 
       {/* Shared Event Modal */}
       {data.permissions === 'edit' && (

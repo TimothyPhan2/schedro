@@ -79,8 +79,7 @@ export function SharedEventModal({
         location,
         start_time: startDateTime,
         end_time: endDateTime,
-        all_day: allDay,
-        calendar_id: calendarId
+        all_day: allDay
       }
 
       // Build URL with password if needed (same logic as SharedCalendarView)
