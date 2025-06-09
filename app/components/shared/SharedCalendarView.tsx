@@ -18,7 +18,7 @@ interface SharedCalendarData {
   calendarId: string
   permissions: 'view' | 'edit'
   isPasswordProtected: boolean
-  expiresAt: Date | null
+  expiresAt: string | null
 }
 
 export function SharedCalendarView({ permission, token }: SharedCalendarViewProps) {
@@ -61,8 +61,9 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
     fetchCalendarData()
   }, [token, permission])
 
-  const formatExpiryDate = (date: Date | null) => {
-    if (!date) return 'Never'
+  const formatExpiryDate = (dateStr: string | null) => {
+    if (!dateStr) return 'Never'
+    const date = new Date(dateStr)
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'short',
@@ -72,8 +73,9 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
     }).format(date)
   }
 
-  const isExpiringSoon = (date: Date | null) => {
-    if (!date) return false
+  const isExpiringSoon = (dateStr: string | null) => {
+    if (!dateStr) return false
+    const date = new Date(dateStr)
     const now = new Date()
     const diffMs = date.getTime() - now.getTime()
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
@@ -181,12 +183,18 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
         <CalendarView
           events={data.events}
           calendarId={data.calendarId}
-          // Disable event creation/editing for view-only permissions
+          // Enable event creation only for edit permissions
           onSelectSlot={data.permissions === 'edit' ? undefined : () => {}}
-          // Show theme controls but not timezone for shared views
+          // Enable event viewing/editing only for edit permissions  
+          onSelectEvent={data.permissions === 'edit' ? undefined : () => {}}
+          // Show theme controls for better UX but hide timezone selector for simplicity
           showThemeControls={true}
-          // Don't allow event changes if view-only
-          onEventChange={data.permissions === 'edit' ? () => {} : undefined}
+          showTimezoneSelector={false}
+          // Allow event changes only for edit permissions
+          onEventChange={data.permissions === 'edit' ? () => {
+            // Refresh calendar data after changes
+            window.location.reload();
+          } : undefined}
         />
       </div>
 

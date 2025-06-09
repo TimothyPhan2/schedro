@@ -51,9 +51,13 @@ export async function GET(
       description: event.description || '',
     }))
 
+    // Return data in the format expected by SharedCalendarView
     return NextResponse.json({ 
       events: formattedEvents,
-      permission: validation.permission 
+      calendarId: validation.permission.calendarId,
+      permissions: validation.permission.level,
+      isPasswordProtected: validation.permission.isPasswordProtected,
+      expiresAt: validation.permission.expiresAt?.toISOString() || null
     })
 
   } catch (error) {

@@ -28,6 +28,7 @@ interface CalendarViewProps {
   onSelectEvent?: (event: AppEvent) => void;
   onSelectSlot?: (slotInfo: { start: Date; end: Date; slots: Date[] | string[]; action: 'select' | 'click' | 'doubleClick' }) => void;
   showThemeControls?: boolean;
+  showTimezoneSelector?: boolean;
   defaultColorScheme?: string;
   calendarId?: string;
   onEventChange?: () => void;
@@ -68,6 +69,7 @@ export function CalendarView({
   onSelectEvent,
   onSelectSlot,
   showThemeControls = true,
+  showTimezoneSelector = true,
   calendarId,
   onEventChange,
 }: CalendarViewProps) {
@@ -261,7 +263,7 @@ export function CalendarView({
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        {!isMobile && (
+        {showTimezoneSelector && !isMobile && (
           <div className="flex items-center">
             <Label htmlFor="timezone-select" className="mr-2">
               Time Zone:
