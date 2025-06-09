@@ -5,6 +5,7 @@ import { CalendarView } from '@/components/calendar/calendar-view'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Share, Shield, Eye, Edit, Clock } from 'lucide-react'
+import { SharedEventModal } from './SharedEventModal'
 import type { AppEvent } from '@/lib/types/event'
 import type { SharedLinkPermission } from '@/lib/permissions/types'
 
@@ -21,10 +22,24 @@ interface SharedCalendarData {
   expiresAt: string | null
 }
 
+interface SelectedEventData {
+  id: string
+  title: string
+  description: string
+  location: string
+  start_time: string
+  end_time: string
+  all_day: boolean
+  color?: string
+}
+
 export function SharedCalendarView({ permission, token }: SharedCalendarViewProps) {
   const [data, setData] = useState<SharedCalendarData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
+  const [selectedEvent, setSelectedEvent] = useState<SelectedEventData | undefined>(undefined)
 
   useEffect(() => {
     const fetchCalendarData = async () => {
@@ -80,6 +95,39 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
     const diffMs = date.getTime() - now.getTime()
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
     return diffDays <= 7 && diffDays > 0
+  }
+
+  const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
+    if (data?.permissions === 'edit') {
+      setSelectedDate(slotInfo.start)
+      setSelectedEvent(undefined)
+      setIsEventModalOpen(true)
+    }
+  }
+
+  const handleSelectEvent = (event: AppEvent) => {
+    if (data?.permissions === 'edit') {
+      // Convert AppEvent to SelectedEventData format
+      const eventData: SelectedEventData = {
+        id: String(event.id),
+        title: event.title,
+        description: event.description || '',
+        location: event.location || '',
+        start_time: event.start.toISOString(),
+        end_time: event.end.toISOString(),
+        all_day: event.allDay || false,
+        color: event.color
+      }
+      setSelectedEvent(eventData)
+      setSelectedDate(undefined)
+      setIsEventModalOpen(true)
+    }
+  }
+
+  const handleCloseModal = () => {
+    setIsEventModalOpen(false)
+    setSelectedDate(undefined)
+    setSelectedEvent(undefined)
   }
 
   if (loading) {
@@ -185,14 +233,12 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
           calendarId={data.calendarId}
           // Set readOnly based on permissions - view permissions get read-only calendar
           readOnly={data.permissions === 'view'}
+          // Custom event handlers for shared calendars with edit permissions
+          onSelectSlot={data.permissions === 'edit' ? handleSelectSlot : undefined}
+          onSelectEvent={data.permissions === 'edit' ? handleSelectEvent : undefined}
           // Show theme controls for better UX but hide timezone selector for simplicity
           showThemeControls={true}
           showTimezoneSelector={false}
-          // Allow event changes only for edit permissions
-          onEventChange={data.permissions === 'edit' ? () => {
-            // Refresh calendar data after changes
-            window.location.reload();
-          } : undefined}
         />
       </div>
 
@@ -209,6 +255,18 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
           </div>
         </div>
       </div>
+
+      {/* Shared Event Modal */}
+      {data.permissions === 'edit' && (
+        <SharedEventModal
+          isOpen={isEventModalOpen}
+          onClose={handleCloseModal}
+          calendarId={data.calendarId}
+          token={token}
+          selectedDate={selectedDate}
+          selectedEvent={selectedEvent}
+        />
+      )}
     </div>
   )
 } 
