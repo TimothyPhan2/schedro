@@ -9,11 +9,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { CalendarIcon, Clock, MapPin, FileText, Loader2 } from 'lucide-react'
 import { format } from 'date-fns'
+import { toast } from 'sonner'
 
 interface SharedEventModalProps {
   isOpen: boolean
   onClose: () => void
-  calendarId: string
   token: string
   selectedDate?: Date
   selectedEvent?: {
@@ -64,20 +64,25 @@ export function SharedEventModal({
     setError(null)
 
     try {
+      // Create proper datetime strings based on user's local timezone
       const startDateTime = allDay ? 
-        `${startDate}T00:00:00.000Z` : 
-        `${startDate}T${startTime}:00.000Z`
+        `${startDate}T00:00:00` : 
+        `${startDate}T${startTime}:00`
       
       const endDateTime = allDay ? 
-        `${endDate}T23:59:59.999Z` : 
-        `${endDate}T${endTime}:00.000Z`
+        `${endDate}T23:59:59` : 
+        `${endDate}T${endTime}:00`
+
+      // Convert to ISO strings (handles timezone conversion)
+      const startIso = new Date(startDateTime).toISOString()
+      const endIso = new Date(endDateTime).toISOString()
 
       const eventData = {
         title,
         description,
         location,
-        start_time: startDateTime,
-        end_time: endDateTime,
+        start_time: startIso,
+        end_time: endIso,
         all_day: allDay
       }
 
@@ -103,18 +108,21 @@ export function SharedEventModal({
         },
         body: JSON.stringify(eventData),
       })
-
+      
       if (!response.ok) {
         const result = await response.json()
         throw new Error(result.error || 'Failed to save event')
       }
 
+      // Show success toast
+      toast.success(isEditing ? 'Event updated successfully!' : 'Event created successfully!')
+      
       onClose()
-      // Refresh the page to show updated events
-      window.location.reload()
     } catch (err) {
       console.error('Error saving event:', err)
-      setError(err instanceof Error ? err.message : 'Failed to save event')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save event'
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -146,12 +154,15 @@ export function SharedEventModal({
         throw new Error(result.error || 'Failed to delete event')
       }
 
+      // Show success toast
+      toast.success('Event deleted successfully!')
+      
       onClose()
-      // Refresh the page to show updated events
-      window.location.reload()
     } catch (err) {
       console.error('Error deleting event:', err)
-      setError(err instanceof Error ? err.message : 'Failed to delete event')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete event'
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }

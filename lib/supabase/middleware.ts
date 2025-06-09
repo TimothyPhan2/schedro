@@ -129,6 +129,7 @@ async function handleSharedRoute(
 
     // Set permission context headers
     response.headers.set('x-shared-calendar-id', validation.permission!.calendarId)
+    response.headers.set('x-shared-calendar-owner-id', validation.permission!.calendarOwnerId)
     response.headers.set('x-shared-permission-level', validation.permission!.level)
     response.headers.set('x-shared-token', token)
     response.headers.set('x-has-edit-access', validator.hasEditAccess(validation.permission).toString())

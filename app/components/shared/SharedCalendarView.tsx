@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { CalendarView } from '@/components/calendar/calendar-view'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -42,40 +42,44 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [selectedEvent, setSelectedEvent] = useState<SelectedEventData | undefined>(undefined)
 
-  useEffect(() => {
-    const fetchCalendarData = async () => {
-      try {
+  const fetchCalendarData = useCallback(async (showLoading = true) => {
+    try {
+      if (showLoading) {
         setLoading(true)
-        setError(null)
+      }
+      setError(null)
 
-        // Build URL with password if needed
-        const url = new URL(`/api/shared/${token}/events`, window.location.origin)
-        if (permission.isPasswordProtected) {
-          const urlParams = new URLSearchParams(window.location.search)
-          const password = urlParams.get('password')
-          if (password) {
-            url.searchParams.set('password', password)
-          }
+      // Build URL with password if needed
+      const url = new URL(`/api/shared/${token}/events`, window.location.origin)
+      if (permission.isPasswordProtected) {
+        const urlParams = new URLSearchParams(window.location.search)
+        const password = urlParams.get('password')
+        if (password) {
+          url.searchParams.set('password', password)
         }
+      }
 
-        const response = await fetch(url.toString())
-        const result = await response.json()
+      const response = await fetch(url.toString())
+      const result = await response.json()
 
-        if (!response.ok) {
-          throw new Error(result.error || 'Failed to fetch calendar data')
-        }
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to fetch calendar data')
+      }
 
-        setData(result)
-      } catch (err) {
-        console.error('Error fetching shared calendar data:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load calendar')
-      } finally {
+      setData(result)
+    } catch (err) {
+      console.error('Error fetching shared calendar data:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load calendar')
+    } finally {
+      if (showLoading) {
         setLoading(false)
       }
     }
+  }, [token, permission.isPasswordProtected])
 
+  useEffect(() => {
     fetchCalendarData()
-  }, [token, permission])
+  }, [fetchCalendarData])
 
   const formatExpiryDate = (dateStr: string | null) => {
     if (!dateStr) return 'Never'
@@ -125,10 +129,13 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
     }
   }
 
-  const handleCloseModal = () => {
+  const handleCloseModal = async () => {
     setIsEventModalOpen(false)
     setSelectedDate(undefined)
     setSelectedEvent(undefined)
+    
+    // Refresh events data without showing loading spinner
+    await fetchCalendarData(false)
   }
 
   const handleFabClick = () => {
@@ -277,7 +284,6 @@ export function SharedCalendarView({ permission, token }: SharedCalendarViewProp
         <SharedEventModal
           isOpen={isEventModalOpen}
           onClose={handleCloseModal}
-          calendarId={data.calendarId}
           token={token}
           selectedDate={selectedDate}
           selectedEvent={selectedEvent}

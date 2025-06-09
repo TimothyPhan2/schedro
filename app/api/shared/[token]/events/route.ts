@@ -3,6 +3,21 @@ import { PermissionValidator } from '@/lib/permissions/validator'
 import { createAnonymousSupabaseClient } from '@/lib/supabase/server'
 import type { AppEvent } from '@/lib/types/event'
 
+interface CreateEventFunctionResult {
+  success: boolean
+  event?: {
+    id: string
+    title: string
+    start_time: string
+    end_time: string
+    all_day: boolean
+    color: string
+    location: string
+    description: string
+  }
+  error?: string
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> }
@@ -79,25 +94,8 @@ export async function POST(
     const { searchParams } = new URL(request.url)
     const password = searchParams.get('password') || undefined
 
-    // Create server-side Supabase client and pass to PermissionValidator
+    // Create server-side Supabase client for calling the function
     const supabase = await createAnonymousSupabaseClient()
-    const validator = new PermissionValidator(supabase)
-    const validation = await validator.validateToken(token, password)
-
-    if (!validation.isValid || !validation.permission) {
-      return NextResponse.json(
-        { error: 'Unauthorized access to this calendar' },
-        { status: 401 }
-      )
-    }
-
-    // Check if user has edit permissions
-    if (validation.permission.level !== 'edit') {
-      return NextResponse.json(
-        { error: 'Insufficient permissions to create events' },
-        { status: 403 }
-      )
-    }
 
     // Validate required fields
     const { title, start_time, end_time, all_day = false, location = '', description = '' } = body
@@ -109,29 +107,39 @@ export async function POST(
       )
     }
 
-    // Create the event
-    const { data: event, error } = await supabase
-      .from('events')
-      .insert({
-        title,
-        start_time,
-        end_time,
-        all_day,
-        location,
-        description,
-        calendar_id: validation.permission.calendarId,
-        color: '#3b82f6' // Default color
+    // Call the database function to create the event
+    const { data: result, error } = await supabase
+      .rpc('create_shared_event', {
+        p_token: token,
+        p_title: title,
+        p_start_time: start_time,
+        p_end_time: end_time,
+        p_all_day: all_day,
+        p_location: location,
+        p_description: description,
+        p_color: '#3b82f6',
+        p_password: password
       })
-      .select()
-      .single()
 
     if (error) {
-      console.error('Error creating shared calendar event:', error)
+      console.error('Error calling create_shared_event function:', error)
       return NextResponse.json(
         { error: 'Failed to create event' },
         { status: 500 }
       )
     }
+
+    // Parse the JSON result from the function
+    const functionResult = result as CreateEventFunctionResult
+
+    if (!functionResult.success || !functionResult.event) {
+      return NextResponse.json(
+        { error: functionResult.error || 'Failed to create event' },
+        { status: 400 }
+      )
+    }
+
+    const event = functionResult.event
 
     // Transform to AppEvent format
     const formattedEvent: AppEvent = {

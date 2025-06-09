@@ -10,15 +10,17 @@ export async function getPermissionContext(): Promise<PermissionContext> {
   
   // Check if this is a shared link request
   const calendarId = headersList.get('x-shared-calendar-id')
+  const calendarOwnerId = headersList.get('x-shared-calendar-owner-id')
   const permissionLevel = headersList.get('x-shared-permission-level') as PermissionLevel | null
   const token = headersList.get('x-shared-token')
   const hasEditAccess = headersList.get('x-has-edit-access') === 'true'
   const hasViewAccess = headersList.get('x-has-view-access') === 'true'
 
-  if (calendarId && permissionLevel && token) {
+  if (calendarId && calendarOwnerId && permissionLevel && token) {
     // This is a shared link request
     const sharedLink: SharedLinkPermission = {
       calendarId,
+      calendarOwnerId,
       level: permissionLevel,
       token,
       isPasswordProtected: false, // We don't need to expose this in context
@@ -47,15 +49,17 @@ export async function getPermissionContext(): Promise<PermissionContext> {
 export function getPermissionContextFromRequest(request: NextRequest): PermissionContext {
   // Check if this is a shared link request
   const calendarId = request.headers.get('x-shared-calendar-id')
+  const calendarOwnerId = request.headers.get('x-shared-calendar-owner-id')
   const permissionLevel = request.headers.get('x-shared-permission-level') as PermissionLevel | null
   const token = request.headers.get('x-shared-token')
   const hasEditAccess = request.headers.get('x-has-edit-access') === 'true'
   const hasViewAccess = request.headers.get('x-has-view-access') === 'true'
 
-  if (calendarId && permissionLevel && token) {
+  if (calendarId && calendarOwnerId && permissionLevel && token) {
     // This is a shared link request
     const sharedLink: SharedLinkPermission = {
       calendarId,
+      calendarOwnerId,
       level: permissionLevel,
       token,
       isPasswordProtected: false,

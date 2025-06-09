@@ -2,6 +2,7 @@ export type PermissionLevel = 'view' | 'edit'
 
 export interface SharedLinkPermission {
   calendarId: string
+  calendarOwnerId: string
   level: PermissionLevel
   token: string
   isPasswordProtected: boolean

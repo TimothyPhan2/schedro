@@ -70,6 +70,7 @@ export class PermissionValidator {
       // Step 4: Build permission object
       const permission: SharedLinkPermission = {
         calendarId: record.calendarId,
+        calendarOwnerId: record.userId!, // The shared link creator is the calendar owner
         level: record.permissions as PermissionLevel,
         token,
         isPasswordProtected: !!record.passwordHash,
