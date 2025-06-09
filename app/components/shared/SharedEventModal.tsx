@@ -31,7 +31,6 @@ interface SharedEventModalProps {
 export function SharedEventModal({
   isOpen,
   onClose,
-  calendarId,
   token,
   selectedDate,
   selectedEvent
