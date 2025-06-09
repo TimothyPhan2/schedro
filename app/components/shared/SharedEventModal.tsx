@@ -83,13 +83,22 @@ export function SharedEventModal({
         calendar_id: calendarId
       }
 
-      const url = isEditing ? 
-        `/api/shared/${token}/events/${selectedEvent.id}` : 
-        `/api/shared/${token}/events`
+      // Build URL with password if needed (same logic as SharedCalendarView)
+      const url = new URL(
+        isEditing ? `/api/shared/${token}/events/${selectedEvent.id}` : `/api/shared/${token}/events`,
+        window.location.origin
+      )
+      
+      // Check if password is in URL params and add it to API call
+      const urlParams = new URLSearchParams(window.location.search)
+      const password = urlParams.get('password')
+      if (password) {
+        url.searchParams.set('password', password)
+      }
       
       const method = isEditing ? 'PUT' : 'POST'
 
-      const response = await fetch(url, {
+      const response = await fetch(url.toString(), {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +129,17 @@ export function SharedEventModal({
     setError(null)
 
     try {
-      const response = await fetch(`/api/shared/${token}/events/${selectedEvent.id}`, {
+      // Build URL with password if needed
+      const url = new URL(`/api/shared/${token}/events/${selectedEvent.id}`, window.location.origin)
+      
+      // Check if password is in URL params and add it to API call
+      const urlParams = new URLSearchParams(window.location.search)
+      const password = urlParams.get('password')
+      if (password) {
+        url.searchParams.set('password', password)
+      }
+
+      const response = await fetch(url.toString(), {
         method: 'DELETE',
       })
 
