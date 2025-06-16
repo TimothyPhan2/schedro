@@ -13,12 +13,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { Menu, CalendarDays, LayoutDashboard, LogOut } from 'lucide-react';
+import { Menu, CalendarDays, LayoutDashboard, LogOut, Settings } from 'lucide-react';
 import { useState } from 'react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Calendar', href: '/calendar', icon: CalendarDays },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export function ProtectedNav() {
