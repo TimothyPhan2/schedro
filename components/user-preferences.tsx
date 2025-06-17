@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import { Loader2, Save, User, Bell, Eye, Palette, Globe, Clock } from 'lucide-react';
 import { useUserPreferences, type UserPreferences } from '@/hooks/use-user-preferences';
 import { commonTimezones, getTimezoneDisplayName, detectUserTimezone } from '@/lib/timezones';
@@ -28,7 +27,7 @@ export default function UserPreferences() {
     await updatePreferences(localPreferences);
   };
 
-  const handleFieldChange = (field: keyof UserPreferences, value: any) => {
+  const handleFieldChange = (field: keyof UserPreferences, value: unknown) => {
     setLocalPreferences(prev => ({
       ...prev,
       [field]: value
@@ -272,7 +271,7 @@ export default function UserPreferences() {
                       <div className="space-y-0.5">
                         <Label>Show Declined Events</Label>
                         <p className="text-sm text-muted-foreground">
-                          Display events you've declined
+                          Display events you&apos;ve declined
                         </p>
                       </div>
                       <Switch
@@ -440,7 +439,7 @@ export default function UserPreferences() {
             <CardHeader>
               <CardTitle>Notification Preferences</CardTitle>
               <CardDescription>
-                Choose what notifications you'd like to receive
+                Choose what notifications you&apos;d like to receive
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

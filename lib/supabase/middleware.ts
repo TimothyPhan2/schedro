@@ -42,11 +42,12 @@ export async function updateSession(request: NextRequest) {
       data: { user: authUser },
     } = await supabase.auth.getUser()
     user = authUser;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Handle specific auth errors gracefully
-    if (error?.code === 'refresh_token_not_found' || 
-        error?.message?.includes('refresh_token_not_found') ||
-        error?.message?.includes('Invalid Refresh Token')) {
+    const err = error as { code?: string; message?: string };
+    if (err?.code === 'refresh_token_not_found' || 
+        err?.message?.includes('refresh_token_not_found') ||
+        err?.message?.includes('Invalid Refresh Token')) {
       console.log('Refresh token not found or invalid, clearing session and redirecting to login');
       // Clear any stale cookies and redirect to login
       const url = request.nextUrl.clone()

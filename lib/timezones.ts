@@ -50,7 +50,7 @@ export function getTimezoneDisplayName(timezone: string): string {
     const offset = getTimezoneOffset(timezone);
     
     return `(GMT${offset}) ${timezoneName}`;
-  } catch (error) {
+  } catch {
     return timezone;
   }
 }
@@ -71,7 +71,7 @@ export function getTimezoneOffset(timezone: string): string {
     const formattedMinutes = minutes.toString().padStart(2, '0');
     
     return `${sign}${formattedHours}:${formattedMinutes}`;
-  } catch (error) {
+  } catch {
     return '+00:00';
   }
 }
@@ -85,7 +85,7 @@ export function getAllTimezones(): string[] {
 export function detectUserTimezone(): string {
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
-  } catch (error) {
+  } catch {
     return 'UTC';
   }
 }
